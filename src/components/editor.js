@@ -28,15 +28,15 @@ export default class Editor extends Component {
 
   render(options, { value }) {
     return (
-      <div className="Ideally-wrapper">
+      <div className="Aura-wrapper">
         {!options.hideToolbar && (
-          <div role="toolbar" className="Ideally-toolbar">
-            <button className="Ideally-button">hi</button>
+          <div role="toolbar" className="Aura-toolbar">
+            <button className="Aura-button">hi</button>
           </div>
         )}
         <textarea
           ref={el => (this.textarea = el)}
-          className="Ideally-textarea"
+          className="Aura-textarea"
           autocomplete="false"
           autocorrect="false"
           autocapitalize="false"

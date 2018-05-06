@@ -8,9 +8,9 @@ const prod = process.env.NODE_ENV === 'production';
 export default {
   input: 'src/index.js',
   output: {
-    file: 'dist/ideally.js',
+    file: 'dist/aura.js',
     format: 'umd',
-    name: 'Ideally'
+    name: 'Aura'
   },
   plugins: [
     resolve(),

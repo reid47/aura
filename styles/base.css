@@ -4,7 +4,7 @@
   --textarea-line-height: 1.25em;
 }
 
-.Ideally-wrapper {
+.Aura-wrapper {
   width: 100%;
   height: 100%;
   padding: 0;
@@ -14,13 +14,13 @@
   flex-direction: column;
 }
 
-.Ideally-toolbar {
+.Aura-toolbar {
   flex-grow: 0;
   background: var(--color-dark);
   padding: 0;
 }
 
-.Ideally-button {
+.Aura-button {
   background: transparent;
   border: none;
   color: var(--color-light);
@@ -28,7 +28,7 @@
   cursor: pointer;
 }
 
-.Ideally-textarea {
+.Aura-textarea {
   flex-grow: 1;
   padding: 0;
   margin: 0;

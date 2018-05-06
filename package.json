@@ -1,9 +1,9 @@
 {
-  "name": "ideally",
+  "name": "aura",
   "version": "1.0.0",
   "description": "An accessible, beginner-friendly browser-based code editor",
   "main": "index.js",
-  "repository": "https://github.com/reid47/ideally",
+  "repository": "https://github.com/reid47/aura",
   "author": "Reid Mitchell <reidmitchell1@gmail.com>",
   "license": "MIT",
   "scripts": {
