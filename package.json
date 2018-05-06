@@ -1,0 +1,20 @@
+{
+  "name": "ideally",
+  "version": "1.0.0",
+  "description": "An accessible, beginner-friendly browser-based code editor",
+  "main": "index.js",
+  "repository": "https://github.com/reid47/ideally",
+  "author": "Reid Mitchell <reidmitchell1@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "rollup": "^0.58.2",
+    "rollup-plugin-babel": "^3.0.4",
+    "rollup-plugin-node-resolve": "^3.3.0"
+  }
+}
