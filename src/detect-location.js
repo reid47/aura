@@ -26,7 +26,12 @@ export default function detectLocation(textarea) {
     index++;
   }
 
-  if (!hasSelection) return { cursorLine: line, cursorColumn: column };
+  if (!hasSelection)
+    return {
+      cursorLine: line,
+      cursorColumn: column,
+      cursorIndex: selectionEndIndex
+    };
 
   return {
     selectionStartLine,

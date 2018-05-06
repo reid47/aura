@@ -1,5 +1,6 @@
 import buildDom from './build-dom';
 import detectLocation from './detect-location';
+import detectContext from './detect-context';
 import announce from './announce';
 
 function getVisibleLines(textarea) {
@@ -58,10 +59,14 @@ export default function(root, options = {}) {
     if (!evt.ctrlKey) return;
 
     switch (evt.keyCode) {
-      case 76:
-        // Ctrl+L
-        announce('location', detectLocation(textarea), options);
+      case 72: // Ctrl + H
         evt.preventDefault();
+        announce('context', detectContext(textarea), options);
+        break;
+
+      case 76: // Ctrl + L
+        evt.preventDefault();
+        announce('location', detectLocation(textarea), options);
         break;
     }
   });

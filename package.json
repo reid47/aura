@@ -7,7 +7,7 @@
   "author": "Reid Mitchell <reidmitchell1@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --environment NODE_ENV:production",
     "watch": "rollup -c -w"
   },
   "devDependencies": {
@@ -16,6 +16,11 @@
     "babel-preset-env": "^1.6.1",
     "rollup": "^0.58.2",
     "rollup-plugin-babel": "^3.0.4",
-    "rollup-plugin-node-resolve": "^3.3.0"
+    "rollup-plugin-commonjs": "^9.1.3",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-uglify": "^3.0.0"
+  },
+  "dependencies": {
+    "babylon": "^6.18.0"
   }
 }
