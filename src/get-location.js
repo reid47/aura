@@ -1,4 +1,4 @@
-export default function detectLocation(textarea) {
+export default function getLocation(textarea) {
   const text = textarea.value;
   const selectionStartIndex = textarea.selectionStart;
   const selectionEndIndex = textarea.selectionEnd;

@@ -1,9 +1,9 @@
-import detectLocation from './detect-location';
+import getLocation from './get-location';
 import { parse, visit } from './js-parser';
 
-export default function detectContext(textarea) {
+export default function getContext(textarea) {
   const text = textarea.value;
-  const location = detectLocation(textarea);
+  const location = getLocation(textarea);
   if ('selectionStartLine' in location) return;
 
   const ast = parse(text);

@@ -1,4 +1,4 @@
 {
-  "presets": [["env", { "modules": false }]],
-  "plugins": ["external-helpers"]
+  "presets": [["env", { "modules": false }], "preact"],
+  "plugins": ["external-helpers", "transform-class-properties"]
 }
