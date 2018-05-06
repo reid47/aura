@@ -1,0 +1,42 @@
+:root {
+  --color-dark: #333;
+  --color-light: #fff;
+  --textarea-line-height: 1.25em;
+}
+
+.Ideally-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.Ideally-toolbar {
+  flex-grow: 0;
+  background: var(--color-dark);
+  padding: 0;
+}
+
+.Ideally-button {
+  background: transparent;
+  border: none;
+  color: var(--color-light);
+  padding: 8px;
+  cursor: pointer;
+}
+
+.Ideally-textarea {
+  flex-grow: 1;
+  padding: 0;
+  margin: 0;
+  font-family: monospace;
+  box-sizing: border-box;
+  overflow: auto;
+  white-space: pre;
+  resize: none;
+  font-size: 1em;
+  line-height: var(--textarea-line-height);
+}

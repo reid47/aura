@@ -7,7 +7,8 @@
   "author": "Reid Mitchell <reidmitchell1@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

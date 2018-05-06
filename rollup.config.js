@@ -5,7 +5,8 @@ export default {
   input: 'src/index.js',
   output: {
     file: 'dist/ideally.js',
-    format: 'umd'
+    format: 'umd',
+    name: 'Ideally'
   },
   plugins: [
     resolve(),
