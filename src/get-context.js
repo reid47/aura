@@ -1,7 +1,8 @@
 import getLocation from './get-location';
-import { parse, visit } from './js-parser';
+import { parse, visit } from './languages/js';
 
 export default function getContext(textarea) {
+  console.time('o');
   const text = textarea.value;
   const location = getLocation(textarea);
   if ('selectionStartLine' in location) return;
@@ -16,7 +17,7 @@ export default function getContext(textarea) {
     return true;
   });
 
-  console.log(pathToCursor);
+  console.timeEnd('o');
 
   return {};
 }

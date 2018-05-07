@@ -26,12 +26,13 @@ export default function getLocation(textarea) {
     index++;
   }
 
-  if (!hasSelection)
+  if (!hasSelection) {
     return {
       cursorLine: line,
       cursorColumn: column,
       cursorIndex: selectionEndIndex
     };
+  }
 
   return {
     selectionStartLine,
