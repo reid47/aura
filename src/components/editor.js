@@ -1,23 +1,24 @@
 import { h, Component } from 'preact';
 import LineNumbers from './line-numbers';
 import TextArea from './text-area';
-import { countLines } from '../util';
+import HighlightOverlay from './highlight-overlay';
+import { splitIntoLines } from '../util';
 
 export default class Editor extends Component {
   state = {
     value: this.props.initialValue,
-    lineCount: countLines(this.props.initialValue)
+    lines: splitIntoLines(this.props.initialValue)
   };
 
   onInput = evt => {
     const value = evt.target.value;
     this.setState({
       value,
-      lineCount: countLines(value)
+      lines: splitIntoLines(value)
     });
   };
 
-  render(options, { value, lineCount }) {
+  render(options, { value, lines }) {
     return (
       <div className="Aura-editor">
         {!options.hideToolbar && (
@@ -25,16 +26,21 @@ export default class Editor extends Component {
             <button className="Aura-button">hi</button>
           </div>
         )}
-        <div className="Aura-textarea-wrapper">
+        <div className="Aura-code-wrapper">
           {!options.hideLineNumbers && (
-            <LineNumbers {...options} lineCount={lineCount} />
+            <LineNumbers {...options} lineCount={lines.length} />
           )}
-          <TextArea
-            {...options}
-            readOnly={options.readOnly}
-            value={value}
-            onInput={this.onInput}
-          />
+          <div className="Aura-textarea-wrapper">
+            {!options.noHighlight && (
+              <HighlightOverlay lines={lines} textarea={this.textarea} />
+            )}
+            <TextArea
+              {...options}
+              textareaRef={el => (this.textarea = el)}
+              value={value}
+              onInput={this.onInput}
+            />
+          </div>
         </div>
       </div>
     );

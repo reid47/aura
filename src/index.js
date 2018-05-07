@@ -16,31 +16,3 @@ export default function(root, options = {}) {
 
   return {};
 }
-
-// function getVisibleLines(textarea) {
-//   const computedStyle = getComputedStyle(textarea);
-
-//   const lineHeight =
-//     parseFloat(computedStyle.getPropertyValue('line-height')) ||
-//     parseFloat(computedStyle.getPropertyValue('font-size')) ||
-//     16;
-
-//   const scrollTop = textarea.scrollTop;
-//   const visibleHeight = textarea.clientHeight;
-//   const firstVisiblePosition = scrollTop - lineHeight;
-//   const lastVisiblePosition = scrollTop + visibleHeight + lineHeight;
-//   const visibleLines = [];
-//   const lines = textarea.value.split(/(\r\n|\r|\n)/);
-
-//   lines.forEach((line, i) => {
-//     const linePosition = lineHeight * i;
-//     if (
-//       linePosition > firstVisiblePosition &&
-//       linePosition < lastVisiblePosition
-//     ) {
-//       visibleLines.push(line);
-//     }
-//   });
-
-//   return visibleLines;
-// }

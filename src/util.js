@@ -15,3 +15,8 @@ export const countLines = text => {
 
   return lineCount;
 };
+
+export const splitIntoLines = text => {
+  if (!text) return [];
+  return text.split('\n');
+};

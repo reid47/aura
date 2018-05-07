@@ -2,7 +2,9 @@
   --color-dark: #333;
   --color-light: #fff;
   --textarea-line-height: 1.25em;
-  --code-font: monospace;
+  --textarea-font: monospace;
+  --textarea-highlight-background: rgb(71, 113, 175);
+  --textarea-highlight-color: #fff;
 
   width: 100%;
   height: 100%;
@@ -12,6 +14,10 @@
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+.Aura-editor * {
+  box-sizing: border-box;
 }
 
 .Aura-toolbar {
@@ -28,11 +34,18 @@
   cursor: pointer;
 }
 
-.Aura-textarea-wrapper {
+.Aura-code-wrapper {
   flex-grow: 1;
   display: flex;
   height: 100%;
   width: 100%;
+}
+
+.Aura-textarea-wrapper {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .Aura-line-numbers {
@@ -43,30 +56,58 @@
   resize: none;
   width: auto;
   border-right: 1px solid var(--color-dark);
-  font-family: var(--code-font);
+  font-family: var(--textarea-font);
   line-height: var(--textarea-line-height);
   font-size: 1em;
   padding: 8px;
   text-align: right;
-  box-sizing: border-box;
   overflow: hidden;
+  user-select: none;
+}
+
+.Aura-highlight-overlay {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  font-family: var(--textarea-font);
+  line-height: var(--textarea-line-height);
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  padding: 8px;
+}
+
+.Aura-token.keyword {
+  color: tomato;
+}
+
+.Aura-highlight-overlay-line.with-cursor {
+  background: yellow;
 }
 
 .Aura-textarea {
-  border: 0;
+  display: block;
+  position: absolute;
   width: 100%;
   height: 100%;
   padding: 8px;
   margin: 0;
-  font-family: var(--code-font);
-  box-sizing: border-box;
-  overflow: auto;
-  white-space: pre;
-  resize: none;
+  border: 0;
   font-size: 1em;
+  font-family: var(--textarea-font);
   line-height: var(--textarea-line-height);
+  white-space: pre;
+  overflow: auto;
+  resize: none;
+  background: transparent;
 }
 
 .Aura-textarea:focus {
   outline: none;
+}
+
+.Aura-textarea::selection {
+  background: var(--textarea-highlight-background);
+  color: var(--textarea-highlight-color);
 }
