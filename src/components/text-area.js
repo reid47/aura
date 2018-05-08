@@ -3,19 +3,21 @@ import announce from '../announce';
 import getLocation from '../get-location';
 import getContext from '../get-context';
 
+export let textareaEl = null;
+
 export default class TextArea extends Component {
-  componentDidMount() {
-    this.props.textareaRef(this.textarea);
-  }
+  setRef = el => (textareaEl = el);
 
   onKeyDown = evt => {
+    this.props.onCursorMove(evt.target.selectionStart);
+
     if (!evt.ctrlKey) return;
 
     switch (evt.keyCode) {
       case 72:
         // Ctrl + H
         evt.preventDefault();
-        announce('context', getContext(this.textarea), this.props);
+        announce('context', getContext(textareaEl), this.props);
         break;
 
       case 76:
@@ -26,18 +28,14 @@ export default class TextArea extends Component {
     }
   };
 
-  onClick = evt => {
-    const selectionStart = this.textarea.selectionStart;
-    const selectionEnd = this.textarea.selectionEnd;
-    if (selectionStart !== selectionEnd) return;
+  onFocus = evt => this.props.onCursorMove(evt.target.selectionStart);
 
-    console.log(selectionStart);
-  };
+  onClick = evt => this.props.onCursorMove(evt.target.selectionStart);
 
   render({ noHighlight, readOnly, onInput, value }) {
     return (
       <textarea
-        ref={el => (this.textarea = el)}
+        ref={this.setRef}
         className="Aura-textarea"
         autocomplete="false"
         autocorrect="false"
@@ -46,6 +44,7 @@ export default class TextArea extends Component {
         defaultValue={value}
         readOnly={readOnly}
         onInput={onInput}
+        onFocus={this.onFocus}
         onKeyDown={this.onKeyDown}
         onClick={this.onClick}
         style={{ color: noHighlight ? '' : 'transparent' }}

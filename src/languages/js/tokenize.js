@@ -80,26 +80,38 @@ const specialWordTypes = {
 
 const symbols = {};
 
-export default function tokenize(lines, { firstVisibleLine, lastVisibleLine }) {
+export default function tokenize(
+  lines,
+  { firstVisibleLine, lastVisibleLine, cursorIndex }
+) {
   console.time('tokenize2');
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
-  const formattedLines = Array(length);
+  const formattedLines = {};
 
   let buffer = '';
+  let cursorLine;
+  let charsProcessed = 0;
 
   for (let lineIndex = 0; lineIndex < length; lineIndex++) {
     const line = lines[lineIndex];
     const lineLength = line.length;
+    charsProcessed += lineLength + 1;
+
     const isVisible =
       lineIndex >= firstVisibleLine && lineIndex <= lastVisibleLine;
 
+    if (cursorLine == null && charsProcessed > cursorIndex) {
+      cursorLine = lineIndex;
+      console.log({ cursorLine });
+    }
+
     if (allWhitespace.test(line)) {
-      formattedLines[lineIndex] = '&nbsp;';
+      if (isVisible) formattedLines[lineIndex] = '&nbsp;';
       continue;
     }
 
-    formattedLines[lineIndex] = '';
+    if (isVisible) formattedLines[lineIndex] = '';
 
     buffer = '';
 
@@ -142,6 +154,6 @@ export default function tokenize(lines, { firstVisibleLine, lastVisibleLine }) {
   }
 
   console.timeEnd('tokenize2');
-  console.log(formattedLines);
-  return formattedLines;
+  // console.log(formattedLines);
+  return { formattedLines, cursorLine };
 }

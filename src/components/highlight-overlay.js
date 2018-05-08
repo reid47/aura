@@ -1,31 +1,38 @@
 import { h, Component } from 'preact';
 import { tokenize } from '../languages/js';
+import { textareaEl } from './text-area';
+
+export let overlayEl = null;
 
 export default class HighlightOverlay extends Component {
-  render({ lines, textarea, cursorLine = 6 }) {
-    if (!textarea) return null;
+  state = { cursorIndex: 0 };
 
-    const scrollTop = textarea.scrollTop;
-    const scrollLeft = textarea.scrollLeft;
-    const clientHeight = textarea.clientHeight;
+  setRef = el => (overlayEl = el);
+
+  render({ lines }, { cursorIndex }) {
+    if (!textareaEl) return null;
 
     const lineHeight = 20; // TODO: make this configurable via font size
+    const scrollTop = textareaEl.scrollTop;
+    const scrollLeft = textareaEl.scrollLeft;
+    const clientHeight = textareaEl.clientHeight;
 
     const firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight));
-
     const lastVisibleLine = Math.min(
       lines.length,
       Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight)
     );
 
-    const formattedLines = tokenize(lines, {
-      firstVisibleLine,
-      lastVisibleLine
-    });
-
-    const lineElements = [];
     const marginTop = -(scrollTop % lineHeight);
     const marginLeft = -scrollLeft;
+
+    const { formattedLines, cursorLine } = tokenize(lines, {
+      firstVisibleLine,
+      lastVisibleLine,
+      cursorIndex
+    });
+
+    const elements = [];
 
     for (
       let lineIndex = firstVisibleLine;
@@ -33,7 +40,8 @@ export default class HighlightOverlay extends Component {
       lineIndex++
     ) {
       const html = formattedLines[lineIndex];
-      lineElements.push(
+
+      elements.push(
         <div
           key={lineIndex + html}
           className={`Aura-highlight-overlay-line ${
@@ -47,9 +55,10 @@ export default class HighlightOverlay extends Component {
     return (
       <div
         role="presentation"
+        ref={this.setRef}
         style={{ marginTop, marginLeft }}
         className="Aura-highlight-overlay">
-        {lineElements}
+        {elements}
       </div>
     );
   }

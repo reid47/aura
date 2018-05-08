@@ -1,7 +1,7 @@
-import { h, Component } from 'preact';
+import { h, Component, options } from 'preact';
 import LineNumbers from './line-numbers';
-import TextArea from './text-area';
-import HighlightOverlay from './highlight-overlay';
+import TextArea, { textareaEl } from './text-area';
+import HighlightOverlay, { overlayEl } from './highlight-overlay';
 import { getLineInfo } from '../util';
 
 export default class Editor extends Component {
@@ -9,21 +9,22 @@ export default class Editor extends Component {
     super(props);
 
     const value = this.props.initialValue;
-    const { lines, lineInfo } = getLineInfo(value);
+    const { lines, charsToLines } = getLineInfo(value);
 
     this.state = {
       value,
       lines,
-      lineInfo
+      charsToLines,
+      cursorLine: 0
     };
   }
 
   componentDidMount() {
-    this.textarea.addEventListener('scroll', this.onScroll);
+    textareaEl.addEventListener('scroll', this.onScroll);
   }
 
   componentWillUnmount() {
-    this.textarea.removeEventListener('scroll', this.onScroll);
+    textareaEl.removeEventListener('scroll', this.onScroll);
   }
 
   onScroll = evt => {
@@ -38,15 +39,20 @@ export default class Editor extends Component {
 
   onInput = evt => {
     const value = evt.target.value;
-    const { lines, lineInfo } = getLineInfo(value);
+    const { lines, charsToLines } = getLineInfo(value);
+
     this.setState({
       value,
       lines,
-      lineInfo
+      charsToLines
     });
   };
 
-  render(options, { value, lines }) {
+  onCursorMove = cursorIndex => {
+    this.overlay && this.overlay.setState({ cursorIndex });
+  };
+
+  render(options, { value, lines, charsToLines, cursorLine }) {
     return (
       <div className="Aura-editor">
         {!options.hideToolbar && (
@@ -67,14 +73,15 @@ export default class Editor extends Component {
               <HighlightOverlay
                 ref={el => (this.overlay = el)}
                 lines={lines}
-                textarea={this.textarea}
+                cursorLine={cursorLine}
               />
             )}
             <TextArea
               {...options}
-              textareaRef={el => (this.textarea = el)}
               value={value}
               onInput={this.onInput}
+              charsToLines={charsToLines}
+              onCursorMove={this.onCursorMove}
             />
           </div>
         </div>

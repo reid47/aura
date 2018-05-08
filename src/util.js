@@ -27,6 +27,7 @@ export const getLineInfo = text => {
   const length = text.length;
 
   while (index < length) {
+    charsToLines[index] = lineCount + 1;
     const char = text[index];
 
     if (char === '\n') {

@@ -2,8 +2,17 @@ import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
 import uglify from 'rollup-plugin-uglify';
+import serve from 'rollup-plugin-serve';
+import livereload from 'rollup-plugin-livereload';
 
 const prod = process.env.NODE_ENV === 'production';
+
+const prodPlugins = [uglify()];
+
+const devPlugins = [
+  serve(),
+  livereload({ watch: ['dist', 'styles'], port: 4747 })
+];
 
 export default {
   input: 'src/index.js',
@@ -19,6 +28,7 @@ export default {
     }),
     babel({
       exclude: 'node_modules/**'
-    })
-  ].concat(prod ? [uglify()] : [])
+    }),
+    ...(prod ? prodPlugins : devPlugins)
+  ]
 };
