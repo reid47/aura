@@ -10,6 +10,25 @@ export default class Editor extends Component {
     lines: splitIntoLines(this.props.initialValue)
   };
 
+  componentDidMount() {
+    console.log('mm');
+    this.textarea.addEventListener('scroll', this.onScroll);
+  }
+
+  componentWillUnmount() {
+    this.textarea.removeEventListener('scroll', this.onScroll);
+  }
+
+  onScroll = evt => {
+    if (this.lineNumbers) {
+      this.lineNumbers.scrollTop = evt.target.scrollTop;
+    }
+
+    if (this.overlay) {
+      this.overlay.forceUpdate();
+    }
+  };
+
   onInput = evt => {
     const value = evt.target.value;
     this.setState({
@@ -28,11 +47,19 @@ export default class Editor extends Component {
         )}
         <div className="Aura-code-wrapper">
           {!options.hideLineNumbers && (
-            <LineNumbers {...options} lineCount={lines.length} />
+            <LineNumbers
+              {...options}
+              lineNumbersRef={el => (this.lineNumbers = el)}
+              lineCount={lines.length}
+            />
           )}
           <div className="Aura-textarea-wrapper">
             {!options.noHighlight && (
-              <HighlightOverlay lines={lines} textarea={this.textarea} />
+              <HighlightOverlay
+                ref={el => (this.overlay = el)}
+                lines={lines}
+                textarea={this.textarea}
+              />
             )}
             <TextArea
               {...options}

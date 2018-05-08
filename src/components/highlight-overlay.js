@@ -7,12 +7,16 @@ export default class HighlightOverlay extends Component {
 
     const formattedLines = tokenize(lines);
     const scrollTop = textarea.scrollTop;
-    const lineHeight = 20; // TODO
+    const scrollLeft = textarea.scrollLeft;
+    const clientHeight = textarea.clientHeight;
+
+    const lineHeight = 20; // TODO: make this configurable via font size
     const firstVisiblePosition = scrollTop - lineHeight;
-    const lastVisiblePosition = scrollTop + textarea.clientHeight + lineHeight;
+    const lastVisiblePosition = scrollTop + clientHeight + lineHeight;
 
     const lineElements = [];
     const marginTop = -(scrollTop % lineHeight);
+    const marginLeft = -scrollLeft;
 
     lines.map((line, lineIndex) => {
       const linePosition = lineHeight * lineIndex;
@@ -36,7 +40,7 @@ export default class HighlightOverlay extends Component {
     return (
       <div
         role="presentation"
-        style={{ marginTop }}
+        style={{ marginTop, marginLeft }}
         className="Aura-highlight-overlay">
         {lineElements}
       </div>

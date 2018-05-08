@@ -6,32 +6,7 @@ import getContext from '../get-context';
 export default class TextArea extends Component {
   componentDidMount() {
     this.props.textareaRef(this.textarea);
-
-    this.lineNumbers = this.textarea.parentNode.parentNode.querySelector(
-      '.Aura-line-numbers'
-    );
-
-    this.highlightOverlay = this.textarea.parentNode.querySelector(
-      '.Aura-highlight-overlay'
-    );
-
-    this.textarea.addEventListener('scroll', this.onScroll);
   }
-
-  componentWillUnmount() {
-    this.textarea.removeEventListener('scroll', this.onScroll);
-  }
-
-  onScroll = evt => {
-    if (this.lineNumbers) {
-      this.lineNumbers.scrollTop = evt.target.scrollTop;
-    }
-
-    if (this.highlightOverlay) {
-      this.highlightOverlay.scrollTop = evt.target.scrollTop;
-      this.highlightOverlay.scrollLeft = evt.target.scrollLeft;
-    }
-  };
 
   onKeyDown = evt => {
     if (!evt.ctrlKey) return;

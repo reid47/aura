@@ -1,12 +1,46 @@
-const wordSeparator = /^[ \t\n\r.,\(\)\[\]$&\{\}]/;
+const wordSeparator = /^[ \t\n\r.,-:;\(\)\[\]$&\{\}]/;
 const allWhitespace = /^\s*$/;
+const allDigits = /^\d+$/;
+const htmlEntities = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;',
+  '`': '&#x60;',
+  '=': '&#x3D;'
+};
 
-const span = (type, text) => `<span class="Aura-token ${type}">${text}</span>`;
+const escapeCache = {};
 
-const keywords = {
+const escape = text => {
+  const cached = escapeCache[text];
+  if (cached) return cached;
+  const replaced = text.replace(/[&<>"'`=\/]/g, c => htmlEntities[c]);
+  return (escapeCache[text] = replaced);
+};
+
+const tokenCaches = {
+  js: {},
+  css: {},
+  html: {}
+};
+
+const markToken = (mode, type, text) => {
+  const cached = tokenCaches[mode][text];
+  if (cached) return cached;
+  const marked = `<span class="Aura-token ${mode} ${type}">${escape(
+    text
+  )}</span>`;
+  return (tokenCaches[mode][text] = marked);
+};
+
+const specialWords = {
   const: 1,
   let: 1,
   var: 1,
+  function: 1,
   return: 1,
   import: 1,
   export: 1,
@@ -22,10 +56,32 @@ const keywords = {
   switch: 1,
   case: 1,
   break: 1,
-  continue: 1
+  continue: 1,
+  try: 1,
+  catch: 1,
+  throw: 1,
+  class: 1,
+  extends: 1,
+  new: 1,
+  yield: 1,
+
+  true: 2,
+  false: 2,
+
+  typeof: 3,
+  instanceof: 3
 };
 
+const specialWordTypes = {
+  1: 'keyword',
+  2: 'boolean',
+  3: 'operator'
+};
+
+const symbols = {};
+
 export default function tokenize(lines) {
+  const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
   const formattedLines = Array(length);
 
@@ -48,15 +104,22 @@ export default function tokenize(lines) {
       const char = line[column];
 
       if (wordSeparator.test(char)) {
-        if (keywords[buffer]) {
-          formattedLines[lineIndex] += span('keyword', buffer) + char;
+        const wordType = specialWords[buffer];
+
+        if (wordType) {
+          formattedLines[lineIndex] +=
+            markToken(mode, specialWordTypes[wordType], buffer) + escape(char);
+          buffer = '';
+        } else if (allDigits.test(buffer)) {
+          formattedLines[lineIndex] +=
+            markToken(mode, 'number', buffer) + escape(char);
           buffer = '';
         } else {
-          formattedLines[lineIndex] += buffer + char;
+          formattedLines[lineIndex] += buffer + escape(char);
           buffer = '';
         }
       } else {
-        buffer += char;
+        buffer += escape(char);
       }
     }
 
@@ -68,27 +131,4 @@ export default function tokenize(lines) {
   // console.log(formattedLines);
 
   return formattedLines;
-  // let { index = 0, line = 0, column = 0, tokens = [] } = state;
-  // const length = code.length;
-  // while (index < length) {
-  //   if (code.indexOf('const', index) === index) {
-  //     index += 5;
-  //     tokens.push({
-  //       kind: 'keyword',
-  //       lineStart: line + 1,
-  //       lineEnd: line + 1,
-  //       columnStart: column + 1,
-  //       columnEnd: column + 1
-  //     });
-  //   } else {
-  //     if (code[index] === '\n') {
-  //       line++;
-  //       column = 0;
-  //     } else {
-  //       column++;
-  //     }
-  //     index++;
-  //   }
-  // }
-  // return { index, line, column, tokens };
 }

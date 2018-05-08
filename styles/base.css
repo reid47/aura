@@ -78,10 +78,6 @@
   padding: 8px;
 }
 
-.Aura-token.keyword {
-  color: tomato;
-}
-
 .Aura-highlight-overlay-line.with-cursor {
   background: yellow;
 }
@@ -110,4 +106,12 @@
 .Aura-textarea::selection {
   background: var(--textarea-highlight-background);
   color: var(--textarea-highlight-color);
+}
+
+.Aura-token.keyword {
+  color: tomato;
+}
+
+.Aura-token.number {
+  color: rgb(184, 46, 184);
 }

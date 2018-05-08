@@ -12,7 +12,7 @@ export default class LineNumbers extends Component {
 
     return (
       <div
-        ref={el => (this.div = el)}
+        ref={el => this.props.lineNumbersRef(el)}
         className="Aura-line-numbers"
         role="presentation">
         {numbers + '\n\n\n\n'}
