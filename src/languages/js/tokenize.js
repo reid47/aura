@@ -80,7 +80,8 @@ const specialWordTypes = {
 
 const symbols = {};
 
-export default function tokenize(lines) {
+export default function tokenize(lines, { firstVisibleLine, lastVisibleLine }) {
+  console.time('tokenize2');
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
   const formattedLines = Array(length);
@@ -90,9 +91,11 @@ export default function tokenize(lines) {
   for (let lineIndex = 0; lineIndex < length; lineIndex++) {
     const line = lines[lineIndex];
     const lineLength = line.length;
+    const isVisible =
+      lineIndex >= firstVisibleLine && lineIndex <= lastVisibleLine;
 
     if (allWhitespace.test(line)) {
-      formattedLines[lineIndex] = line;
+      formattedLines[lineIndex] = '&nbsp;';
       continue;
     }
 
@@ -107,15 +110,25 @@ export default function tokenize(lines) {
         const wordType = specialWords[buffer];
 
         if (wordType) {
-          formattedLines[lineIndex] +=
-            markToken(mode, specialWordTypes[wordType], buffer) + escape(char);
+          if (isVisible) {
+            formattedLines[lineIndex] +=
+              markToken(mode, specialWordTypes[wordType], buffer) +
+              escape(char);
+          }
+
           buffer = '';
         } else if (allDigits.test(buffer)) {
-          formattedLines[lineIndex] +=
-            markToken(mode, 'number', buffer) + escape(char);
+          if (isVisible) {
+            formattedLines[lineIndex] +=
+              markToken(mode, 'number', buffer) + escape(char);
+          }
+
           buffer = '';
         } else {
-          formattedLines[lineIndex] += buffer + escape(char);
+          if (isVisible) {
+            formattedLines[lineIndex] += buffer + escape(char);
+          }
+
           buffer = '';
         }
       } else {
@@ -123,12 +136,12 @@ export default function tokenize(lines) {
       }
     }
 
-    if (buffer) {
+    if (isVisible && buffer) {
       formattedLines[lineIndex] += buffer;
     }
   }
 
-  // console.log(formattedLines);
-
+  console.timeEnd('tokenize2');
+  console.log(formattedLines);
   return formattedLines;
 }

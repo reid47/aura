@@ -2,16 +2,23 @@ import { h, Component } from 'preact';
 import LineNumbers from './line-numbers';
 import TextArea from './text-area';
 import HighlightOverlay from './highlight-overlay';
-import { splitIntoLines } from '../util';
+import { getLineInfo } from '../util';
 
 export default class Editor extends Component {
-  state = {
-    value: this.props.initialValue,
-    lines: splitIntoLines(this.props.initialValue)
-  };
+  constructor(props) {
+    super(props);
+
+    const value = this.props.initialValue;
+    const { lines, lineInfo } = getLineInfo(value);
+
+    this.state = {
+      value,
+      lines,
+      lineInfo
+    };
+  }
 
   componentDidMount() {
-    console.log('mm');
     this.textarea.addEventListener('scroll', this.onScroll);
   }
 
@@ -31,9 +38,11 @@ export default class Editor extends Component {
 
   onInput = evt => {
     const value = evt.target.value;
+    const { lines, lineInfo } = getLineInfo(value);
     this.setState({
       value,
-      lines: splitIntoLines(value)
+      lines,
+      lineInfo
     });
   };
 
@@ -42,7 +51,7 @@ export default class Editor extends Component {
       <div className="Aura-editor">
         {!options.hideToolbar && (
           <div role="toolbar" className="Aura-toolbar">
-            <button className="Aura-button">hi</button>
+            <button className="Aura-button">hey</button>
           </div>
         )}
         <div className="Aura-code-wrapper">

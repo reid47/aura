@@ -26,6 +26,14 @@ export default class TextArea extends Component {
     }
   };
 
+  onClick = evt => {
+    const selectionStart = this.textarea.selectionStart;
+    const selectionEnd = this.textarea.selectionEnd;
+    if (selectionStart !== selectionEnd) return;
+
+    console.log(selectionStart);
+  };
+
   render({ noHighlight, readOnly, onInput, value }) {
     return (
       <textarea
@@ -39,6 +47,7 @@ export default class TextArea extends Component {
         readOnly={readOnly}
         onInput={onInput}
         onKeyDown={this.onKeyDown}
+        onClick={this.onClick}
         style={{ color: noHighlight ? '' : 'transparent' }}
       />
     );
