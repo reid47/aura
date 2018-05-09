@@ -51,10 +51,10 @@
 .Aura-line-numbers {
   height: 100%;
   min-width: 40px;
+  background: transparent;
   white-space: pre;
   border: none;
   resize: none;
-  width: auto;
   border-right: 1px solid var(--color-dark);
   font-family: var(--textarea-font);
   line-height: var(--textarea-line-height);
@@ -63,6 +63,8 @@
   text-align: right;
   overflow: hidden;
   user-select: none;
+  display: block;
+  color: var(--color-dark);
 }
 
 .Aura-highlight-overlay {
@@ -106,6 +108,27 @@
 .Aura-textarea::selection {
   background: var(--textarea-highlight-background);
   color: var(--textarea-highlight-color);
+}
+
+.Aura-textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.Aura-textarea::-webkit-scrollbar-corner {
+  background: #eee;
+}
+
+.Aura-textarea::-webkit-scrollbar-track {
+  background: #eee;
+}
+
+.Aura-textarea::-webkit-scrollbar-thumb {
+  background: #aaa;
+}
+
+.Aura-textarea::-webkit-scrollbar-thumb:hover {
+  background: #333;
 }
 
 .Aura-token.keyword {

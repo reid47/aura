@@ -1,5 +1,6 @@
-import Editor from './components/editor';
-import { render, h } from 'preact';
+// import Editor from './components/editor';
+import Editor from './take2/editor2';
+// import { render, h } from 'preact';
 
 export default function(root, options = {}) {
   root = typeof root === 'string' ? document.querySelector(root) : root;
@@ -12,7 +13,7 @@ export default function(root, options = {}) {
     throw new Error('Root node must be a valid DOM element.');
   }
 
-  render(<Editor {...options} />, root);
+  // render(<Editor {...options} />, root);
 
-  return {};
+  return new Editor(root, options);
 }

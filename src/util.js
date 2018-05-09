@@ -1,3 +1,18 @@
+export const el = (type, props) => {
+  const el = document.createElement(type);
+  Object.entries(props).forEach(([key, val]) => el.setAttribute(key, val));
+  return el;
+};
+
+export const appendNodes = (node, ...children) => {
+  children.forEach(child => node.appendChild(child));
+  return node;
+};
+
+export const on = (node, event, handler) => {
+  node.addEventListener(event, handler);
+};
+
 export const countLines = text => {
   if (!text) return 0;
 
