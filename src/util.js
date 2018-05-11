@@ -1,6 +1,8 @@
-export const el = (type, props) => {
+export const el = (selector, props = {}) => {
+  const [type, ...classNames] = selector.split('.');
   const el = document.createElement(type);
-  Object.entries(props).forEach(([key, val]) => el.setAttribute(key, val));
+  classNames.forEach(cn => el.classList.add(cn));
+  Object.keys(props).forEach(key => el.setAttribute(key, props[key]));
   return el;
 };
 

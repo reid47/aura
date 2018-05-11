@@ -1,6 +1,6 @@
 .Aura-editor {
-  --color-dark: #333;
-  --color-light: #fff;
+  --color-fg: #333;
+  --color-bg: #fff;
   --textarea-line-height: 1.25em;
   --textarea-font: monospace;
   --textarea-highlight-background: rgb(71, 113, 175);
@@ -22,14 +22,14 @@
 
 .Aura-toolbar {
   flex-grow: 0;
-  background: var(--color-dark);
+  background: var(--color-fg);
   padding: 0;
 }
 
 .Aura-button {
   background: transparent;
   border: none;
-  color: var(--color-light);
+  color: var(--color-bg);
   padding: 8px;
   cursor: pointer;
 }
@@ -55,7 +55,7 @@
   white-space: pre;
   border: none;
   resize: none;
-  border-right: 1px solid var(--color-dark);
+  border-right: 1px solid var(--color-fg);
   font-family: var(--textarea-font);
   line-height: var(--textarea-line-height);
   font-size: 1em;
@@ -64,7 +64,7 @@
   overflow: hidden;
   user-select: none;
   display: block;
-  color: var(--color-dark);
+  color: var(--color-fg);
 }
 
 .Aura-highlight-overlay {
@@ -115,20 +115,18 @@
   height: 8px;
 }
 
-.Aura-textarea::-webkit-scrollbar-corner {
-  background: #eee;
-}
-
 .Aura-textarea::-webkit-scrollbar-track {
-  background: #eee;
+  background-color: var(--color-bg);
+  padding: 2px;
 }
 
 .Aura-textarea::-webkit-scrollbar-thumb {
-  background: #aaa;
+  background-color: var(--color-bg);
 }
 
-.Aura-textarea::-webkit-scrollbar-thumb:hover {
-  background: #333;
+.Aura-textarea:hover::-webkit-scrollbar-thumb,
+.Aura-textarea:focus::-webkit-scrollbar-thumb {
+  background-color: var(--color-fg);
 }
 
 .Aura-token.keyword {

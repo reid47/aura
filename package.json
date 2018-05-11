@@ -30,7 +30,6 @@
     "rollup-plugin-uglify": "^3.0.0"
   },
   "dependencies": {
-    "babylon": "^6.18.0",
-    "preact": "^8.2.9"
+    "babylon": "^6.18.0"
   }
 }
