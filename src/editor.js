@@ -1,4 +1,4 @@
-import { el, on, appendNodes, countLines } from './util';
+import { el, on, appendNodes, debounce } from './util';
 import { isEnter, isTab } from './key-events';
 import {
   insertTextAtCursor,
@@ -19,10 +19,7 @@ export default class Editor {
     this.toolbar = el('div.Aura-toolbar', { role: 'toolbar' });
 
     this.lineNumbers = el('div.Aura-line-numbers', {
-      role: 'presentation',
-      readOnly: true,
-      focusable: false,
-      disabled: true
+      role: 'presentation'
     });
 
     this.textarea = el('textarea.Aura-textarea', {
@@ -60,8 +57,9 @@ export default class Editor {
     this.lines = newValue.split('\n');
     const lineCount = this.lines.length;
     if (this.lastLineCount !== lineCount) {
-      this.drawLineNumbers(lineCount);
       this.lastLineCount = lineCount;
+      this.calculateVisibleLines();
+      this.drawLineNumbers(lineCount);
     }
     if (!fromInput) this.textarea.value = newValue;
   };
@@ -92,8 +90,13 @@ export default class Editor {
 
   drawLineNumbers = lineCount => {
     let numbers = '';
-    for (let i = 1; i <= lineCount + 1; i++) numbers += i + '\n';
-    this.lineNumbers.innerHTML = numbers + '\n\n\n';
+    for (let i = this.firstVisibleLine; i < this.lastVisibleLine; i++) {
+      numbers += i + 1 + '\n';
+    }
+
+    const offset = this.textarea.scrollTop % this.lineHeight;
+    this.lineNumbers.scrollTop = offset;
+    this.lineNumbers.innerHTML = numbers + '\n\n\n\n';
 
     const newLineNumberWidth = `${lineCount}`.length * this.fontSize + 'px';
     if (this.lastLineNumberWidth !== newLineNumberWidth) {
@@ -102,8 +105,24 @@ export default class Editor {
     }
   };
 
+  calculateVisibleLines = () => {
+    const scrollTop = this.textarea.scrollTop;
+    const lineHeight = this.lineHeight;
+    const clientHeight = this.textarea.clientHeight;
+
+    this.firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight));
+    this.lastVisibleLine = Math.min(
+      this.lastLineCount,
+      Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight)
+    );
+  };
+
   onScroll = evt => {
-    this.lineNumbers.scrollTop = evt.target.scrollTop;
+    const newScrollTop = evt.target.scrollTop;
+    this.lineNumbers.scrollTop += newScrollTop - this.lastScrollTop;
+    this.lastScrollTop = newScrollTop;
+    this.calculateVisibleLines();
+    this.drawLineNumbers(this.lastLineCount);
   };
 
   onInput = evt => {
@@ -114,10 +133,9 @@ export default class Editor {
     if (isEnter(evt)) {
       evt.preventDefault();
 
-      const cursorIndex = this.textarea.selectionStart;
       const { indent, lastNonSpaceChar } = getIndentAtIndex(
         this.textarea,
-        cursorIndex
+        this.textarea.selectionStart
       );
 
       const increaseIndent = indentAfterChars[lastNonSpaceChar];
