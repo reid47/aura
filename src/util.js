@@ -17,47 +17,7 @@ export const on = (node, event, handler) => {
 
 export const countLines = text => {
   if (!text) return 0;
-
-  let index = 0;
-  let lineCount = 0;
-  const length = text.length;
-
-  while (index < length) {
-    if (text[index] === '\n') {
-      lineCount++;
-    }
-
-    index++;
-  }
-
-  return lineCount;
-};
-
-export const getLineInfo = text => {
-  if (!text) return 0;
-
-  const lines = [''];
-  let lineCount = 0;
-  const charsToLines = {};
-
-  let index = 0;
-  const length = text.length;
-
-  while (index < length) {
-    charsToLines[index] = lineCount + 1;
-    const char = text[index];
-
-    if (char === '\n') {
-      lineCount++;
-      lines.push('');
-    } else {
-      lines[lineCount] += char;
-    }
-
-    index++;
-  }
-
-  return { lines, charsToLines };
+  return (text.match(/\n/g) || []).length;
 };
 
 export const splitIntoLines = text => {

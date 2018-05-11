@@ -1,5 +1,5 @@
 import { el, on, appendNodes, countLines } from './util';
-import { keyCodes } from './constants';
+import { isEnter, isTab } from './key-events';
 import {
   insertTextAtCursor,
   deleteTextAtCursor,
@@ -18,7 +18,7 @@ export default class Editor {
     this.textareaWrapper = el('div.Aura-textarea-wrapper');
     this.toolbar = el('div.Aura-toolbar', { role: 'toolbar' });
 
-    this.lineNumbers = el('textarea.Aura-line-numbers', {
+    this.lineNumbers = el('div.Aura-line-numbers', {
       role: 'presentation',
       readOnly: true,
       focusable: false,
@@ -50,14 +50,19 @@ export default class Editor {
     on(this.textarea, 'keydown', this.onKeyDown);
 
     this.setFontSize(options.fontSize || 16);
+    this.setLineHeight(options.lineHeight || 20);
     this.setIndentSize(options.indentSize || 2);
     this.setTabInsertsIndent(options.tabInsertsIndent || true);
     this.setValue(options.initialValue || '');
   }
 
   setValue = (newValue, fromInput) => {
-    const lineCount = countLines(newValue);
-    this.drawLineNumbers(lineCount);
+    this.lines = newValue.split('\n');
+    const lineCount = this.lines.length;
+    if (this.lastLineCount !== lineCount) {
+      this.drawLineNumbers(lineCount);
+      this.lastLineCount = lineCount;
+    }
     if (!fromInput) this.textarea.value = newValue;
   };
 
@@ -74,19 +79,27 @@ export default class Editor {
     this.wrapper.style.fontSize = newFontSize + 'px';
   };
 
+  setLineHeight = newLineHeight => {
+    if (this.lineHeight === newLineHeight) return;
+    this.lineHeight = newLineHeight;
+    this.wrapper.style.lineHeight = newLineHeight + 'px';
+  };
+
   setTabInsertsIndent = tabInsertsIndent => {
     if (this.tabInsertsIndent === tabInsertsIndent) return;
     this.tabInsertsIndent = tabInsertsIndent;
   };
 
   drawLineNumbers = lineCount => {
-    if (this.lastLineCount === lineCount) return;
-    this.lastLineCount = lineCount;
-    const numbers = [];
-    for (let i = 1; i <= lineCount + 1; i++) numbers.push(i);
+    let numbers = '';
+    for (let i = 1; i <= lineCount + 1; i++) numbers += i + '\n';
+    this.lineNumbers.innerHTML = numbers + '\n\n\n';
 
-    this.lineNumbers.style.width = `${lineCount}`.length * this.fontSize + 'px';
-    this.lineNumbers.value = numbers.join('\n') + '\n\n\n\n';
+    const newLineNumberWidth = `${lineCount}`.length * this.fontSize + 'px';
+    if (this.lastLineNumberWidth !== newLineNumberWidth) {
+      this.lineNumbers.style.width = newLineNumberWidth;
+      this.lastLineNumberWidth = newLineNumberWidth;
+    }
   };
 
   onScroll = evt => {
@@ -98,7 +111,7 @@ export default class Editor {
   };
 
   onKeyDown = evt => {
-    if (evt.keyCode === keyCodes.enter) {
+    if (isEnter(evt)) {
       evt.preventDefault();
 
       const cursorIndex = this.textarea.selectionStart;
@@ -116,7 +129,7 @@ export default class Editor {
       return;
     }
 
-    if (evt.keyCode === keyCodes.tab && this.tabInsertsIndent) {
+    if (isTab(evt) && this.tabInsertsIndent) {
       evt.preventDefault();
       if (!evt.shiftKey) insertTextAtCursor(this.textarea, this.indentString);
       else deleteTextAtCursor(this.textarea, this.indentSize);
