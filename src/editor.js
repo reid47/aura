@@ -1,5 +1,6 @@
 import { el, on, appendNodes, debounce } from './util';
 import { isEnter, isTab } from './key-events';
+import { tokenize } from './languages/js';
 import {
   insertTextAtCursor,
   deleteTextAtCursor,
@@ -55,10 +56,16 @@ export default class Editor {
 
   setValue = (newValue, fromInput) => {
     this.lines = newValue.split('\n');
+    this.calculateVisibleLines();
+    this.formattedText = tokenize(this.lines, {
+      firstVisibleLine: this.firstVisibleLine,
+      lastVisibleLine: this.lastVisibleLine,
+      cursorIndex: this.textarea.selectionStart
+    });
+
     const lineCount = this.lines.length;
     if (this.lastLineCount !== lineCount) {
       this.lastLineCount = lineCount;
-      this.calculateVisibleLines();
       this.drawLineNumbers(lineCount);
     }
     if (!fromInput) this.textarea.value = newValue;

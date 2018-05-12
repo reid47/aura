@@ -87,19 +87,21 @@ export default function tokenize(
   console.time('tokenize2');
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
-  const formattedLines = {};
+  let formattedLines = '';
 
   let buffer = '';
   let cursorLine;
   let charsProcessed = 0;
 
   for (let lineIndex = 0; lineIndex < length; lineIndex++) {
+    const isVisible =
+      lineIndex >= firstVisibleLine && lineIndex <= lastVisibleLine;
+
+    if (!isVisible) continue;
+
     const line = lines[lineIndex];
     const lineLength = line.length;
     charsProcessed += lineLength + 1;
-
-    const isVisible =
-      lineIndex >= firstVisibleLine && lineIndex <= lastVisibleLine;
 
     if (cursorLine == null && charsProcessed > cursorIndex) {
       cursorLine = lineIndex;
@@ -107,12 +109,11 @@ export default function tokenize(
     }
 
     if (allWhitespace.test(line)) {
-      if (isVisible) formattedLines[lineIndex] = '&nbsp;';
+      formattedLines += '\n&nbsp;';
       continue;
     }
 
-    if (isVisible) formattedLines[lineIndex] = '';
-
+    formattedLines += '\n';
     buffer = '';
 
     for (let column = 0; column < lineLength; column++) {
@@ -123,7 +124,7 @@ export default function tokenize(
 
         if (wordType) {
           if (isVisible) {
-            formattedLines[lineIndex] +=
+            formattedLines +=
               markToken(mode, specialWordTypes[wordType], buffer) +
               escape(char);
           }
@@ -131,14 +132,13 @@ export default function tokenize(
           buffer = '';
         } else if (allDigits.test(buffer)) {
           if (isVisible) {
-            formattedLines[lineIndex] +=
-              markToken(mode, 'number', buffer) + escape(char);
+            formattedLines += markToken(mode, 'number', buffer) + escape(char);
           }
 
           buffer = '';
         } else {
           if (isVisible) {
-            formattedLines[lineIndex] += buffer + escape(char);
+            formattedLines += buffer + escape(char);
           }
 
           buffer = '';
@@ -149,7 +149,7 @@ export default function tokenize(
     }
 
     if (isVisible && buffer) {
-      formattedLines[lineIndex] += buffer;
+      formattedLines += buffer;
     }
   }
 
