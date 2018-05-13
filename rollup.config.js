@@ -33,22 +33,4 @@ const mainEntry = {
   ]
 };
 
-const workerEntry = {
-  input: 'src/tokenizer-worker.js',
-  output: {
-    file: 'dist/tokenizer-worker.js',
-    format: 'umd',
-    name: 'Aura'
-  },
-  plugins: [
-    resolve(),
-    commonjs({
-      include: 'node_modules/**'
-    }),
-    babel({
-      exclude: 'node_modules/**'
-    })
-  ]
-};
-
-export default [mainEntry, workerEntry];
+export default [mainEntry];
