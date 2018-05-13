@@ -10,8 +10,8 @@ const prod = process.env.NODE_ENV === 'production';
 const prodPlugins = [uglify()];
 
 const devPlugins = [
-  serve()
-  // livereload({ watch: ['dist', 'styles'], port: 4747 })
+  serve(),
+  livereload({ watch: ['dist', 'styles'], port: 4747 })
 ];
 
 const mainEntry = {
@@ -51,4 +51,4 @@ const workerEntry = {
   ]
 };
 
-export default mainEntry; //[mainEntry, workerEntry];
+export default [mainEntry, workerEntry];

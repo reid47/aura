@@ -78,11 +78,12 @@ const specialWordTypes = {
 
 const symbols = {};
 
-export default function tokenize(
+export default function tokenize({
   lines,
-  { firstVisibleLine, lastVisibleLine, cursorIndex }
-) {
-  console.time('tokenize');
+  firstVisibleLine,
+  lastVisibleLine,
+  cursorIndex
+}) {
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
   let formattedLines = '';
@@ -150,6 +151,5 @@ export default function tokenize(
     }
   }
 
-  console.timeEnd('tokenize');
   return formattedLines;
 }

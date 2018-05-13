@@ -44,6 +44,14 @@ export default class Editor {
       )
     );
 
+    this.worker = new Worker('/dist/tokenizer-worker.js'); //TODO
+    this.worker.onmessage = msg => {
+      console.timeEnd('tokenize2');
+      console.log(msg.data);
+      this.overlay.innerHTML = msg.data.toString();
+    };
+    console.log(this.worker);
+
     on(this.textarea, 'scroll', this.onScroll);
     on(this.textarea, 'input', this.onInput);
     on(this.textarea, 'keydown', this.onKeyDown);
@@ -93,11 +101,26 @@ export default class Editor {
   };
 
   drawOverlay = () => {
-    this.overlay.innerHTML = tokenize(this.lines, {
-      firstVisibleLine: this.firstVisibleLine,
-      lastVisibleLine: this.lastVisibleLine,
-      cursorIndex: this.textarea.selectionStart
-    });
+    // console.time('tokenize1');
+    // const tokenized1 = tokenize({
+    //   lines: this.lines,
+    //   firstVisibleLine: this.firstVisibleLine,
+    //   lastVisibleLine: this.lastVisibleLine,
+    //   cursorIndex: this.textarea.selectionStart
+    // });
+    // console.timeEnd('tokenize1');
+
+    console.time('tokenize2');
+    this.worker.postMessage(
+      JSON.stringify({
+        lines: this.lines,
+        firstVisibleLine: this.firstVisibleLine,
+        lastVisibleLine: this.lastVisibleLine,
+        cursorIndex: this.textarea.selectionStart
+      })
+    );
+
+    // this.overlay.innerHTML = tokenized1;
 
     const scrollTop = this.textarea.scrollTop;
     const subtract = scrollTop ? this.lineHeight : 0;
