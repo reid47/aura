@@ -17,7 +17,6 @@
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-preact": "^1.1.0",
     "concurrently": "^3.5.1",
     "live-server": "^1.2.0",
     "npm-run-all": "^4.1.3",

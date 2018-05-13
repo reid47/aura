@@ -103,7 +103,6 @@ export default function tokenize(
 
     if (cursorLine == null && charsProcessed > cursorIndex) {
       cursorLine = lineIndex;
-      console.log({ cursorLine });
     }
 
     if (allWhitespace.test(line)) {
@@ -140,7 +139,14 @@ export default function tokenize(
     }
 
     if (buffer) {
-      formattedLines += buffer;
+      const wordType = specialWords[buffer];
+      if (wordType) {
+        formattedLines += markToken(mode, specialWordTypes[wordType], buffer);
+      } else if (allDigits.test(buffer)) {
+        formattedLines += markToken(mode, 'number', buffer);
+      } else {
+        formattedLines += buffer;
+      }
     }
   }
 
