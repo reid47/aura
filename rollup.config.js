@@ -10,11 +10,11 @@ const prod = process.env.NODE_ENV === 'production';
 const prodPlugins = [uglify()];
 
 const devPlugins = [
-  serve(),
-  livereload({ watch: ['dist', 'styles'], port: 4747 })
+  serve()
+  // livereload({ watch: ['dist', 'styles'], port: 4747 })
 ];
 
-export default {
+const mainEntry = {
   input: 'src/index.js',
   output: {
     file: 'dist/aura.js',
@@ -32,3 +32,23 @@ export default {
     ...(prod ? prodPlugins : devPlugins)
   ]
 };
+
+const workerEntry = {
+  input: 'src/tokenizer-worker.js',
+  output: {
+    file: 'dist/tokenizer-worker.js',
+    format: 'umd',
+    name: 'Aura'
+  },
+  plugins: [
+    resolve(),
+    commonjs({
+      include: 'node_modules/**'
+    }),
+    babel({
+      exclude: 'node_modules/**'
+    })
+  ]
+};
+
+export default mainEntry; //[mainEntry, workerEntry];

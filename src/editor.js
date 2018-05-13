@@ -125,16 +125,15 @@ export default class Editor {
   };
 
   calculateVisibleLines = () => {
-    const scrollTop = this.textarea.scrollTop;
+    const { scrollTop, scrollHeight, clientHeight } = this.textarea;
 
-    if (!scrollTop) {
+    if (scrollHeight <= clientHeight) {
       this.firstVisibleLine = 0;
       this.lastVisibleLine = this.lines.length;
       return;
     }
 
     const lineHeight = this.lineHeight;
-    const clientHeight = this.textarea.clientHeight;
 
     this.firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight));
     this.lastVisibleLine = Math.min(

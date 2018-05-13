@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rollup -c --environment NODE_ENV:production",
     "build-watch": "rollup -c -w",
-    "dev-server": "live-server --port=4747 --watch=dist,styles",
+    "dev-server": "live-server --port=4747",
     "dev": "concurrently \"npm run build-watch\" \"npm run dev-server\""
   },
   "devDependencies": {
