@@ -18,6 +18,7 @@ export default class Editor {
     this.codeWrapper = el('div.Aura-code-wrapper');
     this.textareaWrapper = el('div.Aura-textarea-wrapper');
     this.toolbar = el('div.Aura-toolbar', { role: 'toolbar' });
+    this.overlay = el('div.Aura-highlight-overlay', { role: 'presentation' });
 
     this.lineNumbers = el('div.Aura-line-numbers', {
       role: 'presentation'
@@ -38,7 +39,7 @@ export default class Editor {
         appendNodes(
           this.codeWrapper,
           this.lineNumbers,
-          appendNodes(this.textareaWrapper, this.textarea)
+          appendNodes(this.textareaWrapper, this.textarea, this.overlay)
         )
       )
     );
@@ -47,7 +48,7 @@ export default class Editor {
     on(this.textarea, 'input', this.onInput);
     on(this.textarea, 'keydown', this.onKeyDown);
 
-    this.setFontSize(options.fontSize || 18);
+    this.setFontSize(options.fontSize || 16);
     this.setLineHeight(options.lineHeight || 20);
     this.setIndentSize(options.indentSize || 2);
     this.setTabInsertsIndent(options.tabInsertsIndent || true);
@@ -57,11 +58,7 @@ export default class Editor {
   setValue = (newValue, fromInput) => {
     this.lines = newValue.split('\n');
     this.calculateVisibleLines();
-    this.formattedText = tokenize(this.lines, {
-      firstVisibleLine: this.firstVisibleLine,
-      lastVisibleLine: this.lastVisibleLine,
-      cursorIndex: this.textarea.selectionStart
-    });
+    this.drawOverlay();
 
     const lineCount = this.lines.length;
     if (this.lastLineCount !== lineCount) {
@@ -95,6 +92,21 @@ export default class Editor {
     this.tabInsertsIndent = tabInsertsIndent;
   };
 
+  drawOverlay = () => {
+    this.overlay.innerHTML = tokenize(this.lines, {
+      firstVisibleLine: this.firstVisibleLine,
+      lastVisibleLine: this.lastVisibleLine,
+      cursorIndex: this.textarea.selectionStart
+    });
+
+    const scrollTop = this.textarea.scrollTop;
+    const subtract = scrollTop ? this.lineHeight : 0;
+    const offsetY = -(this.textarea.scrollTop % this.lineHeight) - subtract;
+    const offsetX = -this.textarea.scrollLeft;
+
+    this.overlay.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  };
+
   drawLineNumbers = lineCount => {
     let numbers = '';
     for (let i = this.firstVisibleLine; i < this.lastVisibleLine; i++) {
@@ -119,16 +131,22 @@ export default class Editor {
 
     this.firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight));
     this.lastVisibleLine = Math.min(
-      this.lastLineCount,
+      (this.lastLineCount || this.lines.length) - 1,
       Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight)
     );
   };
 
   onScroll = evt => {
     const newScrollTop = evt.target.scrollTop;
+    if (newScrollTop === this.lastScrollTop) {
+      this.drawOverlay();
+      return;
+    }
+
     this.lineNumbers.scrollTop += newScrollTop - this.lastScrollTop;
     this.lastScrollTop = newScrollTop;
     this.calculateVisibleLines();
+    this.drawOverlay();
     this.drawLineNumbers(this.lastLineCount);
   };
 

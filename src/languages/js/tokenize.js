@@ -1,4 +1,4 @@
-const wordSeparator = /^[ \t\n\r.,-:;\(\)\[\]$&\{\}]/;
+const wordSeparator = /^[ \t\n\r.,\-:;\(\)\[\]$&\{\}]/;
 const allWhitespace = /^\s*$/;
 const allDigits = /^\d+$/;
 const htmlEntities = {
@@ -64,10 +64,8 @@ const specialWords = {
   extends: 1,
   new: 1,
   yield: 1,
-
   true: 2,
   false: 2,
-
   typeof: 3,
   instanceof: 3
 };
@@ -113,7 +111,7 @@ export default function tokenize(
       continue;
     }
 
-    formattedLines += '\n';
+    if (lineIndex) formattedLines += '\n';
     buffer = '';
 
     for (let column = 0; column < lineLength; column++) {
@@ -123,23 +121,16 @@ export default function tokenize(
         const wordType = specialWords[buffer];
 
         if (wordType) {
-          if (isVisible) {
-            formattedLines +=
-              markToken(mode, specialWordTypes[wordType], buffer) +
-              escape(char);
-          }
+          formattedLines +=
+            markToken(mode, specialWordTypes[wordType], buffer) + escape(char);
 
           buffer = '';
         } else if (allDigits.test(buffer)) {
-          if (isVisible) {
-            formattedLines += markToken(mode, 'number', buffer) + escape(char);
-          }
+          formattedLines += markToken(mode, 'number', buffer) + escape(char);
 
           buffer = '';
         } else {
-          if (isVisible) {
-            formattedLines += buffer + escape(char);
-          }
+          formattedLines += buffer + escape(char);
 
           buffer = '';
         }
@@ -148,12 +139,11 @@ export default function tokenize(
       }
     }
 
-    if (isVisible && buffer) {
+    if (buffer) {
       formattedLines += buffer;
     }
   }
 
   console.timeEnd('tokenize2');
-  // console.log(formattedLines);
-  return { formattedLines, cursorLine };
+  return formattedLines;
 }
