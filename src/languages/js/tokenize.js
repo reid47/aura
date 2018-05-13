@@ -82,7 +82,7 @@ export default function tokenize(
   lines,
   { firstVisibleLine, lastVisibleLine, cursorIndex }
 ) {
-  console.time('tokenize2');
+  console.time('tokenize');
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
   let formattedLines = '';
@@ -150,6 +150,6 @@ export default function tokenize(
     }
   }
 
-  console.timeEnd('tokenize2');
+  console.timeEnd('tokenize');
   return formattedLines;
 }
