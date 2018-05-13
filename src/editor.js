@@ -47,7 +47,7 @@ export default class Editor {
     on(this.textarea, 'input', this.onInput);
     on(this.textarea, 'keydown', this.onKeyDown);
 
-    this.setFontSize(options.fontSize || 16);
+    this.setFontSize(options.fontSize || 18);
     this.setLineHeight(options.lineHeight || 20);
     this.setIndentSize(options.indentSize || 2);
     this.setTabInsertsIndent(options.tabInsertsIndent || true);
