@@ -113,3 +113,13 @@ export const getIndentAtIndex = (textarea, index) => {
 
   return { level, indent, lastNonSpaceChar };
 };
+
+export const getCursorPositionFromIndex = (lineStartIndexes, index) => {
+  let i = 0;
+  // TODO: binary search here
+  while (lineStartIndexes[i] <= index) i++;
+  return {
+    cursorLine: i - 1,
+    cursorColumn: index - (lineStartIndexes[i - 1] || 0)
+  };
+};
