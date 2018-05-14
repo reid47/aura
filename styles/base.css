@@ -99,6 +99,7 @@
   overflow: auto;
   resize: none;
   background: transparent;
+  color: transparent;
 }
 
 .Aura-textarea:focus {
@@ -135,4 +136,8 @@
 
 .Aura-token.number {
   color: rgb(184, 46, 184);
+}
+
+.Aura-token.string {
+  color: rgb(19, 74, 255);
 }

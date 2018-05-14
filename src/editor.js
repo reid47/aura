@@ -18,7 +18,9 @@ export default class Editor {
     this.codeWrapper = el('div.Aura-code-wrapper');
     this.textareaWrapper = el('div.Aura-textarea-wrapper');
     this.toolbar = el('div.Aura-toolbar', { role: 'toolbar' });
-    this.overlay = el('div.Aura-highlight-overlay', { role: 'presentation' });
+    this.syntaxHighlightOverlay = el('div.Aura-highlight-overlay', {
+      role: 'presentation'
+    });
 
     this.lineNumbers = el('div.Aura-line-numbers', {
       role: 'presentation'
@@ -39,7 +41,11 @@ export default class Editor {
         appendNodes(
           this.codeWrapper,
           this.lineNumbers,
-          appendNodes(this.textareaWrapper, this.textarea, this.overlay)
+          appendNodes(
+            this.textareaWrapper,
+            this.syntaxHighlightOverlay,
+            this.textarea
+          )
         )
       )
     );
@@ -93,7 +99,7 @@ export default class Editor {
   };
 
   drawOverlay = () => {
-    this.overlay.innerHTML = tokenize({
+    this.syntaxHighlightOverlay.innerHTML = tokenize({
       lines: this.lines,
       firstVisibleLine: this.firstVisibleLine,
       lastVisibleLine: this.lastVisibleLine,
@@ -105,7 +111,7 @@ export default class Editor {
     const offsetY = -(this.textarea.scrollTop % this.lineHeight) - subtract;
     const offsetX = -this.textarea.scrollLeft;
 
-    this.overlay.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    this.syntaxHighlightOverlay.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
   };
 
   drawLineNumbers = lineCount => {

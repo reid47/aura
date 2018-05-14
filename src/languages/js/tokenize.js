@@ -70,6 +70,10 @@ const specialWords = {
   instanceof: 3
 };
 
+const specialWordRegex = new RegExp(
+  '^(' + Object.keys(specialWords).join('|') + ')$'
+);
+
 const specialWordTypes = {
   1: 'keyword',
   2: 'boolean',
@@ -82,7 +86,9 @@ export default function tokenize({
   lines,
   firstVisibleLine,
   lastVisibleLine,
-  cursorIndex
+  selectionStart,
+  cursorIndex,
+  testB
 }) {
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
@@ -91,8 +97,13 @@ export default function tokenize({
   let buffer = '';
   let cursorLine;
   let charsProcessed = 0;
+  let inSingleQuotedString;
+  let inDoubleQuotedString;
 
   for (let lineIndex = 0; lineIndex < length; lineIndex++) {
+    inSingleQuotedString = false;
+    inDoubleQuotedString = false;
+
     const isVisible =
       lineIndex >= firstVisibleLine && lineIndex <= lastVisibleLine;
 
@@ -116,13 +127,37 @@ export default function tokenize({
 
     for (let column = 0; column < lineLength; column++) {
       const char = line[column];
+      const charCode = char.charCodeAt(0);
 
-      if (wordSeparator.test(char)) {
-        const wordType = specialWords[buffer];
-
-        if (wordType) {
+      if (charCode === 39) {
+        // single-quote
+        buffer += char;
+        if (inSingleQuotedString) {
+          inSingleQuotedString = false;
+          formattedLines += markToken(mode, 'string', buffer);
+          buffer = '';
+        } else {
+          inSingleQuotedString = true;
+        }
+      } else if (charCode === 34) {
+        // double-quote
+        buffer += char;
+        if (inDoubleQuotedString) {
+          inDoubleQuotedString = false;
+          formattedLines += markToken(mode, 'string', buffer);
+          buffer = '';
+        } else {
+          inDoubleQuotedString = true;
+        }
+      } else if (
+        !inSingleQuotedString &&
+        !inDoubleQuotedString &&
+        wordSeparator.test(char)
+      ) {
+        if (specialWordRegex.test(buffer)) {
           formattedLines +=
-            markToken(mode, specialWordTypes[wordType], buffer) + escape(char);
+            markToken(mode, specialWordTypes[specialWords[buffer]], buffer) +
+            escape(char);
 
           buffer = '';
         } else if (allDigits.test(buffer)) {
@@ -135,13 +170,13 @@ export default function tokenize({
           buffer = '';
         }
       } else {
-        buffer += escape(char);
+        buffer += char;
       }
     }
 
     if (buffer) {
-      const wordType = specialWords[buffer];
-      if (wordType) {
+      if (specialWordRegex.test(buffer)) {
+        const wordType = specialWords[buffer];
         formattedLines += markToken(mode, specialWordTypes[wordType], buffer);
       } else if (allDigits.test(buffer)) {
         formattedLines += markToken(mode, 'number', buffer);
