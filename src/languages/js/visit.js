@@ -221,7 +221,7 @@ export default function visit(node, visitFunc) {
     case 'StringLiteral':
     case 'Super':
     case 'ThisExpression':
-      // Leaf nodes
+    // Leaf nodes
       return;
   }
 }

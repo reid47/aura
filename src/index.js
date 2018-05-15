@@ -7,7 +7,7 @@ export default function(root, options = {}) {
     throw new Error('Aura: failed to initialize: could not find root node.');
   }
 
-  if (!root instanceof Element) {
+  if (!(root instanceof Element)) {
     throw new Error('Aura: root node must be a valid DOM element.');
   }
 

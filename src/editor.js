@@ -1,4 +1,4 @@
-import { el, on, appendNodes, debounce } from './util';
+import { on } from './util';
 import constructDom from './construct-dom';
 import * as keys from './key-events';
 import tokenize from './languages/js/tokenize';
@@ -196,7 +196,7 @@ export default class Editor {
     this.drawCursorOverlay();
   };
 
-  onClick = evt => {
+  onClick = () => {
     this.calculateCursorPosition();
     this.drawCursorOverlay();
   };

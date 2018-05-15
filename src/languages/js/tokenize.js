@@ -1,5 +1,4 @@
-const wordSeparator = /^[ \t\n\r.,\-:;\(\)\[\]$&\{\}]/;
-const allWhitespace = /^\s*$/;
+const wordSeparator = /^[ \t\n\r.,\-:;()[\]$&{}]/;
 const allDigits = /^\d+$/;
 const htmlEntities = {
   '&': '&amp;',
@@ -17,7 +16,7 @@ const escapeCache = {};
 const escape = text => {
   const cached = escapeCache[text];
   if (cached) return cached;
-  const replaced = text.replace(/[&<>"'`=\/]/g, c => htmlEntities[c]);
+  const replaced = text.replace(/[&<>"'`=/]/g, c => htmlEntities[c]);
   return (escapeCache[text] = replaced);
 };
 
@@ -78,20 +77,12 @@ const specialWordTypes = {
   3: 'operator'
 };
 
-const symbols = {};
-
-export default function tokenize({
-  lines,
-  firstVisibleLine,
-  lastVisibleLine,
-  selectionStart
-}) {
+export default function tokenize({ lines, firstVisibleLine, lastVisibleLine }) {
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
   let formattedLines = '';
 
   let buffer = '';
-  let charsProcessed = 0;
   let inSingleQuotedString;
   let inDoubleQuotedString;
 
@@ -106,7 +97,6 @@ export default function tokenize({
 
     const line = lines[lineIndex];
     const lineLength = line.length;
-    charsProcessed += lineLength + 1;
 
     if (lineIndex > firstVisibleLine) formattedLines += '\n';
 

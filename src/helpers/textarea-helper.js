@@ -1,6 +1,6 @@
 let textareaHasTextNodes;
 
-function canInsertTextNodes(textarea) {
+function canInsertTextNodes() {
   if (typeof textareaHasTextNodes === 'undefined') {
     const testTextarea = document.createElement('textarea');
     testTextarea.value = 1;
@@ -24,7 +24,7 @@ export const insertTextAtCursor = (textarea, text) => {
   if (typeof textarea.setRangeText === 'function') {
     // If that fails, try it this way for Firefox
     textarea.setRangeText(text);
-  } else if (canInsertTextNodes(textarea)) {
+  } else if (canInsertTextNodes()) {
     // If that fails, try this for IE 11
     const textNode = document.createTextNode(text);
     let node = textarea.firstChild;
@@ -80,7 +80,6 @@ export const deleteTextAtCursor = (textarea, numCharsToDelete) => {
   // TODO: does this work across browsers?
   textarea.focus();
   const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
   textarea.selectionStart = start - numCharsToDelete;
   document.execCommand('delete', false, null);
 };

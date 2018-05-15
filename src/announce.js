@@ -1,6 +1,6 @@
 function makeAnnouncement(message, options) {
   if (options.debug) {
-    console.log('Announcing:', message);
+    // console.log('Announcing:', message);
   }
 }
 

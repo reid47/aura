@@ -27,7 +27,6 @@ export default function parse(code) {
   try {
     ast = babylon.parse(code, babylonOptions);
   } catch (err) {
-    console.log({ err });
     throw err;
   }
 

@@ -1,4 +1,4 @@
-import { el, on, appendNodes, debounce } from './util';
+import { el, appendNodes } from './util';
 import SettingsDialog from './settings-dialog';
 
 export default function constructDom(root, options, els) {
