@@ -22,6 +22,10 @@ export const isDownArrow = evt => {
   return (evt.keyCode || evt.which) === 40;
 };
 
+export const isComma = evt => {
+  return (evt.keyCode || evt.which) === 188;
+};
+
 export const isNavigating = evt => {
   const keyCode = evt.keyCode || evt.which;
   switch (keyCode) {

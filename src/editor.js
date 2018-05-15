@@ -1,6 +1,7 @@
 import { el, on, appendNodes, debounce } from './util';
+import constructDom from './construct-dom';
 import * as keys from './key-events';
-import { tokenize } from './languages/js';
+import tokenize from './languages/js/tokenize';
 import {
   insertTextAtCursor,
   deleteTextAtCursor,
@@ -15,63 +16,20 @@ export default class Editor {
   constructor(root, options = {}) {
     this.root = root;
     this.options = options;
+    this.els = {};
 
-    this.wrapper = el('div.Aura-editor');
-    this.codeWrapper = el('div.Aura-code-wrapper');
-    this.textareaWrapper = el('div.Aura-textarea-wrapper');
-    this.toolbar = el('div.Aura-toolbar', { role: 'toolbar' });
+    constructDom(this.root, this.els);
 
-    this.syntaxHighlightOverlay = el('div.Aura-highlight-overlay', {
-      role: 'presentation'
-    });
-
-    this.cursorOverlay = el('div.Aura-cursor-overlay', {
-      role: 'presentation'
-    });
-
-    this.cursor = el('div.Aura-cursor', {
-      role: 'presentation'
-    });
-
-    this.lineNumbers = el('div.Aura-line-numbers', {
-      role: 'presentation'
-    });
-
-    this.textarea = el('textarea.Aura-textarea', {
-      autocomplete: 'false',
-      autocorrect: 'false',
-      autocapitalize: 'false',
-      spellCheck: 'false'
-    });
-
-    appendNodes(
-      this.root,
-      appendNodes(
-        this.wrapper,
-        this.toolbar,
-        appendNodes(
-          this.codeWrapper,
-          this.lineNumbers,
-          appendNodes(
-            this.textareaWrapper,
-            appendNodes(this.cursorOverlay, this.cursor),
-            this.syntaxHighlightOverlay,
-            this.textarea
-          )
-        )
-      )
-    );
-
-    on(this.textarea, 'scroll', this.onScroll);
-    on(this.textarea, 'input', this.onInput);
-    on(this.textarea, 'keydown', this.onKeyDown);
-    on(this.textarea, 'click', this.onClick);
+    on(this.els.textarea, 'scroll', this.onScroll);
+    on(this.els.textarea, 'input', this.onInput);
+    on(this.els.textarea, 'keydown', this.onKeyDown);
+    on(this.els.textarea, 'click', this.onClick);
 
     this.cursorLine = 0;
     this.cursorColumn = 0;
 
     this.setFontSize(options.fontSize || 16);
-    this.setLineHeight(options.lineHeight || 20);
+    this.setLineHeight(options.lineHeight || this.fontSize * 1.5);
     this.setIndentSize(options.indentSize || 2);
     this.setTabInsertsIndent(options.tabInsertsIndent || true);
     this.setValue(options.initialValue || '');
@@ -94,7 +52,7 @@ export default class Editor {
       this.lastLineCount = lineCount;
       this.drawLineNumbers(lineCount);
     }
-    if (!fromInput) this.textarea.value = newValue;
+    if (!fromInput) this.els.textarea.value = newValue;
   };
 
   setIndentSize = newIndentSize => {
@@ -107,14 +65,15 @@ export default class Editor {
   setFontSize = newFontSize => {
     if (this.fontSize === newFontSize) return;
     this.fontSize = newFontSize;
-    this.wrapper.style.fontSize = newFontSize + 'px';
+    this.els.wrapper.style.fontSize = newFontSize + 'px';
     this.characterWidth = measureCharacterWidth('monospace', this.fontSize);
   };
 
   setLineHeight = newLineHeight => {
     if (this.lineHeight === newLineHeight) return;
     this.lineHeight = newLineHeight;
-    this.wrapper.style.lineHeight = newLineHeight + 'px';
+    this.els.wrapper.style.lineHeight = `${newLineHeight}px`;
+    this.els.cursorOverlay.style.height = `${newLineHeight}px`;
   };
 
   setTabInsertsIndent = tabInsertsIndent => {
@@ -123,33 +82,33 @@ export default class Editor {
   };
 
   drawCursorOverlay = () => {
-    this.cursorOverlay.style.display = 'none';
-    if (this.textarea.selectionStart !== this.textarea.selectionEnd) return;
+    this.els.cursorOverlay.style.display = 'none';
+    if (this.els.textarea.selectionStart !== this.els.textarea.selectionEnd)
+      return;
     if (this.cursorLine < this.firstVisibleLine) return;
     if (this.cursorLine > this.lastVisibleLine) return;
 
-    const { scrollTop, scrollLeft } = this.textarea;
+    const { scrollTop, scrollLeft } = this.els.textarea;
     const lineOffset = this.cursorLine * this.lineHeight - scrollTop;
     const columnOffset = this.cursorColumn * this.characterWidth - scrollLeft;
-    this.cursorOverlay.style.transform = `translateY(${lineOffset}px)`;
-    this.cursor.style.transform = `translateX(${columnOffset}px)`;
-    this.cursorOverlay.style.display = 'block';
+    this.els.cursorOverlay.style.transform = `translateY(${lineOffset}px)`;
+    this.els.cursor.style.transform = `translateX(${columnOffset}px)`;
+    this.els.cursorOverlay.style.display = 'block';
   };
 
   drawHighlightOverlay = () => {
-    this.syntaxHighlightOverlay.innerHTML = tokenize({
+    this.els.syntaxHighlightOverlay.innerHTML = tokenize({
       lines: this.lines,
       firstVisibleLine: this.firstVisibleLine,
       lastVisibleLine: this.lastVisibleLine,
-      cursorIndex: this.textarea.selectionStart
+      cursorIndex: this.els.textarea.selectionStart
     });
 
-    const { scrollTop, scrollLeft } = this.textarea;
-    const subtract = scrollTop ? this.lineHeight : 0;
-    const offsetY = -(scrollTop % this.lineHeight) - subtract;
+    const { scrollTop, scrollLeft } = this.els.textarea;
+    const offsetY = -(scrollTop % this.lineHeight);
     const offsetX = -scrollLeft;
 
-    this.syntaxHighlightOverlay.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    this.els.syntaxHighlightOverlay.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
   };
 
   drawLineNumbers = lineCount => {
@@ -158,20 +117,20 @@ export default class Editor {
       numbers += i + 1 + '\n';
     }
 
-    const offset = this.textarea.scrollTop % this.lineHeight;
-    this.lineNumbers.scrollTop = offset;
-    this.lineNumbers.innerHTML = numbers + '\n\n\n\n';
+    const offset = this.els.textarea.scrollTop % this.lineHeight;
+    this.els.lineNumbers.scrollTop = offset;
+    this.els.lineNumbers.innerHTML = numbers + '\n\n\n\n';
 
     const newLineNumberWidth =
       `${lineCount}`.length * this.characterWidth + 'px';
     if (this.lastLineNumberWidth !== newLineNumberWidth) {
-      this.lineNumbers.style.width = newLineNumberWidth;
+      this.els.lineNumbers.style.width = newLineNumberWidth;
       this.lastLineNumberWidth = newLineNumberWidth;
     }
   };
 
   calculateVisibleLines = () => {
-    const { scrollTop, scrollHeight, clientHeight } = this.textarea;
+    const { scrollTop, scrollHeight, clientHeight } = this.els.textarea;
 
     if (scrollHeight <= clientHeight) {
       this.firstVisibleLine = 0;
@@ -191,7 +150,7 @@ export default class Editor {
   calculateCursorPosition = () => {
     const { cursorLine, cursorColumn } = getCursorPositionFromIndex(
       this.lineStartIndexes,
-      this.textarea.selectionStart
+      this.els.textarea.selectionStart
     );
 
     this.cursorLine = cursorLine;
@@ -206,7 +165,6 @@ export default class Editor {
       return;
     }
 
-    this.lineNumbers.scrollTop += newScrollTop - this.lastScrollTop;
     this.lastScrollTop = newScrollTop;
     this.calculateVisibleLines();
     this.drawHighlightOverlay();
@@ -226,6 +184,12 @@ export default class Editor {
   };
 
   onKeyDown = evt => {
+    if (evt.ctrlKey) {
+      if (keys.isComma(evt)) {
+        // return;
+      }
+    }
+
     if (keys.isNavigating(evt)) {
       setTimeout(() => {
         this.calculateCursorPosition();
@@ -238,13 +202,13 @@ export default class Editor {
       evt.preventDefault();
 
       const { indent, lastNonSpaceChar } = getIndentAtIndex(
-        this.textarea,
-        this.textarea.selectionStart
+        this.els.textarea,
+        this.els.textarea.selectionStart
       );
 
       const increaseIndent = indentAfterChars[lastNonSpaceChar];
       insertTextAtCursor(
-        this.textarea,
+        this.els.textarea,
         '\n' + indent + (increaseIndent ? this.indentString : '')
       );
 
@@ -253,8 +217,9 @@ export default class Editor {
 
     if (keys.isTab(evt) && this.tabInsertsIndent) {
       evt.preventDefault();
-      if (!evt.shiftKey) insertTextAtCursor(this.textarea, this.indentString);
-      else deleteTextAtCursor(this.textarea, this.indentSize);
+      if (!evt.shiftKey)
+        insertTextAtCursor(this.els.textarea, this.indentString);
+      else deleteTextAtCursor(this.els.textarea, this.indentSize);
       return;
     }
   };

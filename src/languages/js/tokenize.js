@@ -30,9 +30,7 @@ const tokenCaches = {
 const markToken = (mode, type, text) => {
   const cached = tokenCaches[mode][text];
   if (cached) return cached;
-  const marked = `<span class="Aura-token ${mode} ${type}">${escape(
-    text
-  )}</span>`;
+  const marked = `<span class="Aura-token ${mode} ${type}">${text}</span>`;
   return (tokenCaches[mode][text] = marked);
 };
 
@@ -86,16 +84,13 @@ export default function tokenize({
   lines,
   firstVisibleLine,
   lastVisibleLine,
-  selectionStart,
-  cursorIndex,
-  testB
+  selectionStart
 }) {
   const mode = 'js'; // TODO: make this configurable
   const length = lines.length;
   let formattedLines = '';
 
   let buffer = '';
-  let cursorLine;
   let charsProcessed = 0;
   let inSingleQuotedString;
   let inDoubleQuotedString;
@@ -113,16 +108,8 @@ export default function tokenize({
     const lineLength = line.length;
     charsProcessed += lineLength + 1;
 
-    if (cursorLine == null && charsProcessed > cursorIndex) {
-      cursorLine = lineIndex;
-    }
+    if (lineIndex > firstVisibleLine) formattedLines += '\n';
 
-    if (allWhitespace.test(line)) {
-      formattedLines += '\n&nbsp;';
-      continue;
-    }
-
-    if (lineIndex) formattedLines += '\n';
     buffer = '';
 
     for (let column = 0; column < lineLength; column++) {
@@ -134,7 +121,7 @@ export default function tokenize({
         buffer += char;
         if (inSingleQuotedString) {
           inSingleQuotedString = false;
-          formattedLines += markToken(mode, 'string', buffer);
+          formattedLines += markToken(mode, 'string', escape(buffer));
           buffer = '';
         } else {
           inSingleQuotedString = true;
@@ -144,7 +131,7 @@ export default function tokenize({
         buffer += char;
         if (inDoubleQuotedString) {
           inDoubleQuotedString = false;
-          formattedLines += markToken(mode, 'string', buffer);
+          formattedLines += markToken(mode, 'string', escape(buffer));
           buffer = '';
         } else {
           inDoubleQuotedString = true;
@@ -156,17 +143,18 @@ export default function tokenize({
       ) {
         if (specialWordRegex.test(buffer)) {
           formattedLines +=
-            markToken(mode, specialWordTypes[specialWords[buffer]], buffer) +
-            escape(char);
-
+            markToken(
+              mode,
+              specialWordTypes[specialWords[buffer]],
+              escape(buffer)
+            ) + escape(char);
           buffer = '';
         } else if (allDigits.test(buffer)) {
-          formattedLines += markToken(mode, 'number', buffer) + escape(char);
-
+          formattedLines +=
+            markToken(mode, 'number', escape(buffer)) + escape(char);
           buffer = '';
         } else {
-          formattedLines += buffer + escape(char);
-
+          formattedLines += escape(buffer) + escape(char);
           buffer = '';
         }
       } else {
@@ -177,11 +165,15 @@ export default function tokenize({
     if (buffer) {
       if (specialWordRegex.test(buffer)) {
         const wordType = specialWords[buffer];
-        formattedLines += markToken(mode, specialWordTypes[wordType], buffer);
+        formattedLines += markToken(
+          mode,
+          specialWordTypes[wordType],
+          escape(buffer)
+        );
       } else if (allDigits.test(buffer)) {
-        formattedLines += markToken(mode, 'number', buffer);
+        formattedLines += markToken(mode, 'number', escape(buffer));
       } else {
-        formattedLines += buffer;
+        formattedLines += escape(buffer);
       }
     }
   }
