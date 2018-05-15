@@ -37,6 +37,9 @@ export default class Editor {
     this.setIndentSize(options.indentSize || 2);
     this.setTabInsertsIndent(options.tabInsertsIndent || true);
     this.setValue(options.initialValue || '');
+    this.setDisableSyntaxHighlighting(
+      options.disableSyntaxHighlighting || false
+    );
   }
 
   setValue = (newValue, fromInput) => {
@@ -57,6 +60,16 @@ export default class Editor {
       this.drawLineNumbers(lineCount);
     }
     if (!fromInput) this.els.textarea.value = newValue;
+  };
+
+  setDisableSyntaxHighlighting = shouldDisable => {
+    if (this.disableSyntaxHighlighting === shouldDisable) return;
+    this.disableSyntaxHighlighting = shouldDisable;
+    this.els.syntaxHighlightOverlay.hidden = shouldDisable;
+    this.els.textarea.style.color = shouldDisable
+      ? '#000' /*TODO*/
+      : 'transparent';
+    this.drawHighlightOverlay();
   };
 
   setIndentSize = newIndentSize => {
@@ -115,6 +128,8 @@ export default class Editor {
   };
 
   drawHighlightOverlay = () => {
+    if (this.disableSyntaxHighlighting) return;
+
     this.els.syntaxHighlightOverlay.innerHTML = tokenize({
       lines: this.lines,
       firstVisibleLine: this.firstVisibleLine,

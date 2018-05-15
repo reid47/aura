@@ -2,17 +2,24 @@ import { el, appendNodes, on } from './util';
 
 const configurableSettings = [
   {
+    key: 'disableSyntaxHighlighting',
+    type: 'checkbox',
+    label: 'disable syntax highlighting (default: false)',
+    onChange: (editor, { target: { checked } }) =>
+      editor.setDisableSyntaxHighlighting(checked)
+  },
+  {
     key: 'fontSize',
     type: 'number',
     label: 'editor font size (px, default: 16)',
-    onChange: (editor, newValue) => editor.setFontSize(newValue),
+    onChange: (editor, { target: { value } }) => editor.setFontSize(value),
     attrs: { min: '8', max: '72' }
   },
   {
     key: 'lineHeight',
     type: 'number',
     label: 'editor line height (px, default: 24)',
-    onChange: (editor, newValue) => editor.setLineHeight(newValue),
+    onChange: (editor, { target: { value } }) => editor.setFontSize(value),
     attrs: { min: '8', max: '108' }
   }
 ];
@@ -66,7 +73,7 @@ export default class SettingsDialog {
     on(this.els.settingsCloseButton, 'click', this.close);
     this.els.settingsInputs.forEach((el, i) => {
       on(el, 'change', evt =>
-        configurableSettings[i].onChange(this.editor, evt.target.value)
+        configurableSettings[i].onChange(this.editor, evt)
       );
     });
   }
