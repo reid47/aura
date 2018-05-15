@@ -1,9 +1,13 @@
+export const isTab = evt => {
+  return (evt.keyCode || evt.which) === 9;
+};
+
 export const isEnter = evt => {
   return (evt.keyCode || evt.which) === 13;
 };
 
-export const isTab = evt => {
-  return (evt.keyCode || evt.which) === 9;
+export const isEscape = evt => {
+  return (evt.keyCode || evt.which) === 27;
 };
 
 export const isLeftArrow = evt => {

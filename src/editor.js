@@ -9,6 +9,7 @@ import {
   getCursorPositionFromIndex
 } from './helpers/textarea-helper';
 import { measureCharacterWidth } from './helpers/font-helper';
+import SettingsDialog from './settings-dialog';
 
 const indentAfterChars = { '{': 1, '(': 1 };
 
@@ -18,12 +19,15 @@ export default class Editor {
     this.options = options;
     this.els = {};
 
-    constructDom(this.root, this.els);
+    constructDom(this.root, this.options, this.els);
+
+    this.settings = new SettingsDialog(this.els, this, this.options);
 
     on(this.els.textarea, 'scroll', this.onScroll);
     on(this.els.textarea, 'input', this.onInput);
-    on(this.els.textarea, 'keydown', this.onKeyDown);
+    on(this.els.textarea, 'keydown', this.onTextareaKeyDown);
     on(this.els.textarea, 'click', this.onClick);
+    on(this.els.settings, 'keydown', this.onSettingsKeyDown);
 
     this.cursorLine = 0;
     this.cursorColumn = 0;
@@ -63,6 +67,7 @@ export default class Editor {
   };
 
   setFontSize = newFontSize => {
+    newFontSize = parseInt(newFontSize, 10);
     if (this.fontSize === newFontSize) return;
     this.fontSize = newFontSize;
     this.els.wrapper.style.fontSize = newFontSize + 'px';
@@ -70,6 +75,7 @@ export default class Editor {
   };
 
   setLineHeight = newLineHeight => {
+    newLineHeight = parseInt(newLineHeight, 10);
     if (this.lineHeight === newLineHeight) return;
     this.lineHeight = newLineHeight;
     this.els.wrapper.style.lineHeight = `${newLineHeight}px`;
@@ -79,6 +85,18 @@ export default class Editor {
   setTabInsertsIndent = tabInsertsIndent => {
     if (this.tabInsertsIndent === tabInsertsIndent) return;
     this.tabInsertsIndent = tabInsertsIndent;
+  };
+
+  focusTextArea = () => {
+    this.els.textarea.focus();
+  };
+
+  disableTextArea = () => {
+    this.els.textarea.setAttribute('disabled', 'true');
+  };
+
+  enableTextArea = () => {
+    this.els.textarea.removeAttribute('disabled');
   };
 
   drawCursorOverlay = () => {
@@ -183,10 +201,10 @@ export default class Editor {
     this.drawCursorOverlay();
   };
 
-  onKeyDown = evt => {
+  onTextareaKeyDown = evt => {
     if (evt.ctrlKey) {
       if (keys.isComma(evt)) {
-        // return;
+        this.settings.toggle();
       }
     }
 
@@ -220,6 +238,20 @@ export default class Editor {
       if (!evt.shiftKey)
         insertTextAtCursor(this.els.textarea, this.indentString);
       else deleteTextAtCursor(this.els.textarea, this.indentSize);
+      return;
+    }
+  };
+
+  onSettingsKeyDown = evt => {
+    if (evt.ctrlKey && keys.isComma(evt)) {
+      this.settings.toggle();
+      evt.preventDefault();
+      return;
+    }
+
+    if (keys.isEscape(evt) && this.settings.isOpen()) {
+      this.settings.close();
+      evt.preventDefault();
       return;
     }
   };

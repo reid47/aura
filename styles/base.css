@@ -179,3 +179,47 @@
 .Aura-token.string {
   color: rgb(19, 74, 255);
 }
+
+.Aura-settings {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  font-family: sans-serif;
+  font-size: 1em;
+}
+
+.Aura-settings-dialog {
+  position: fixed;
+  width: calc(100% - 64px);
+  height: calc(100% - 64px);
+  left: 32px;
+  top: 32px;
+  background-color: var(--color-bg);
+}
+
+.Aura-settings-input-label {
+  width: 60%;
+  margin: 0 auto;
+  display: block;
+  text-align: right;
+}
+
+.Aura-settings-input {
+  width: 80px;
+  display: inline-block;
+  padding: 8px;
+  font-size: inherit;
+}
+
+.Aura-settings-close-button {
+  background: transparent;
+  border: none;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  font-size: 32px;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+}

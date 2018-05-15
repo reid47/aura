@@ -1,6 +1,7 @@
 import { el, on, appendNodes, debounce } from './util';
+import SettingsDialog from './settings-dialog';
 
-export default function constructDom(root, els) {
+export default function constructDom(root, options, els) {
   els.wrapper = el('div.Aura-editor');
   els.codeWrapper = el('div.Aura-code-wrapper');
   els.textareaWrapper = el('div.Aura-textarea-wrapper');
@@ -26,13 +27,11 @@ export default function constructDom(root, els) {
     autocomplete: 'false',
     autocorrect: 'false',
     autocapitalize: 'false',
-    spellCheck: 'false'
+    spellCheck: 'false',
+    'aria-label': options.editorAreaLabel || 'code editor'
   });
 
-  els.settings = el('div.Aura-settings', {
-    role: 'dialog',
-    hidden: false
-  });
+  const settingsEl = SettingsDialog.init(els);
 
   appendNodes(
     root,
@@ -49,7 +48,7 @@ export default function constructDom(root, els) {
           els.textarea
         )
       ),
-      els.settings
+      settingsEl
     )
   );
 }
