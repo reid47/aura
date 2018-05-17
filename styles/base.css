@@ -65,6 +65,7 @@
   display: block;
   color: var(--color-fg);
   pointer-events: none;
+  box-sizing: content-box;
 }
 
 .Aura-cursor-overlay {
@@ -138,6 +139,7 @@
   resize: none;
   background: transparent;
   color: transparent;
+  caret-color: transparent;
 }
 
 .Aura-textarea:focus {

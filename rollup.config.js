@@ -5,6 +5,7 @@ import uglify from 'rollup-plugin-uglify';
 import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
 
+// eslint-disable-next-line no-undef
 const prod = process.env.NODE_ENV === 'production';
 
 const prodPlugins = [uglify()];

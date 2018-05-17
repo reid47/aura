@@ -1,4 +1,4 @@
-import { on } from './util';
+import { on, escape } from './util';
 import constructDom from './construct-dom';
 import * as keys from './key-events';
 import tokenize from './languages/js/tokenize';
@@ -10,6 +10,7 @@ import {
 } from './helpers/textarea-helper';
 import { measureCharacterWidth } from './helpers/font-helper';
 import SettingsDialog from './settings-dialog';
+import { setTheme } from './themes';
 
 const indentAfterChars = { '{': 1, '(': 1 };
 
@@ -18,19 +19,21 @@ export default class Editor {
     this.root = root;
     this.options = options;
     this.els = {};
+    this.cursorLine = 0;
+    this.cursorColumn = 0;
+    this.firstVisibleLine = 0;
+    this.lastVisibleLine = 200;
 
     constructDom(this.root, this.options, this.els);
+    setTheme(this.els, options.theme || 'defaultLight');
 
     this.settings = new SettingsDialog(this.els, this, this.options);
 
     on(this.els.textarea, 'scroll', this.onScroll);
     on(this.els.textarea, 'input', this.onInput);
     on(this.els.textarea, 'keydown', this.onTextareaKeyDown);
-    on(this.els.textarea, 'click', this.onClick);
+    on(this.els.textarea, 'mousedown', this.onMouseDown);
     on(this.els.settings, 'keydown', this.onSettingsKeyDown);
-
-    this.cursorLine = 0;
-    this.cursorColumn = 0;
 
     this.setFontSize(options.fontSize || 16);
     this.setLineHeight(options.lineHeight || this.fontSize * 1.5);
@@ -59,16 +62,13 @@ export default class Editor {
       this.lastLineCount = lineCount;
       this.drawLineNumbers(lineCount);
     }
+
     if (!fromInput) this.els.textarea.value = newValue;
   };
 
   setDisableSyntaxHighlighting = shouldDisable => {
     if (this.disableSyntaxHighlighting === shouldDisable) return;
     this.disableSyntaxHighlighting = shouldDisable;
-    this.els.syntaxHighlightOverlay.hidden = shouldDisable;
-    this.els.textarea.style.color = shouldDisable
-      ? '#000' /*TODO*/
-      : 'transparent';
     this.drawHighlightOverlay();
   };
 
@@ -128,15 +128,20 @@ export default class Editor {
   };
 
   drawHighlightOverlay = () => {
-    if (this.disableSyntaxHighlighting) return;
+    let visibleLines = '';
+    if (this.disableSyntaxHighlighting) {
+      for (let i = this.firstVisibleLine; i <= this.lastVisibleLine; i++) {
+        visibleLines += escape(this.lines[i] || '') + '\n';
+      }
+    } else {
+      visibleLines = tokenize({
+        lines: this.lines,
+        firstVisibleLine: this.firstVisibleLine,
+        lastVisibleLine: this.lastVisibleLine
+      });
+    }
 
-    this.els.syntaxHighlightOverlay.innerHTML = tokenize({
-      lines: this.lines,
-      firstVisibleLine: this.firstVisibleLine,
-      lastVisibleLine: this.lastVisibleLine,
-      cursorIndex: this.els.textarea.selectionStart
-    });
-
+    this.els.syntaxHighlightOverlay.innerHTML = visibleLines;
     const { scrollTop, scrollLeft } = this.els.textarea;
     const offsetY = -(scrollTop % this.lineHeight);
     const offsetX = -scrollLeft;
@@ -164,14 +169,13 @@ export default class Editor {
 
   calculateVisibleLines = () => {
     const { scrollTop, scrollHeight, clientHeight } = this.els.textarea;
+    const lineHeight = this.lineHeight;
 
     if (scrollHeight <= clientHeight) {
       this.firstVisibleLine = 0;
-      this.lastVisibleLine = this.lines.length;
+      this.lastVisibleLine = Math.ceil(clientHeight / lineHeight);
       return;
     }
-
-    const lineHeight = this.lineHeight;
 
     this.firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight));
     this.lastVisibleLine = Math.min(
@@ -211,9 +215,11 @@ export default class Editor {
     this.drawCursorOverlay();
   };
 
-  onClick = () => {
-    this.calculateCursorPosition();
-    this.drawCursorOverlay();
+  onMouseDown = evt => {
+    setTimeout(() => {
+      this.calculateCursorPosition();
+      this.drawCursorOverlay();
+    }, 0);
   };
 
   onTextareaKeyDown = evt => {
@@ -232,18 +238,18 @@ export default class Editor {
     }
 
     if (keys.isEnter(evt)) {
-      evt.preventDefault();
-
       const { indent, lastNonSpaceChar } = getIndentAtIndex(
         this.els.textarea,
         this.els.textarea.selectionStart
       );
 
-      const increaseIndent = indentAfterChars[lastNonSpaceChar];
-      insertTextAtCursor(
-        this.els.textarea,
-        '\n' + indent + (increaseIndent ? this.indentString : '')
-      );
+      setTimeout(() => {
+        const increaseIndent = indentAfterChars[lastNonSpaceChar];
+        insertTextAtCursor(
+          this.els.textarea,
+          indent + (increaseIndent ? this.indentString : '')
+        );
+      }, 0);
 
       return;
     }

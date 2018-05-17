@@ -1,25 +1,7 @@
+import { escape } from '../../util';
+
 const wordSeparator = /^[ \t\n\r.,\-:;()[\]$&{}]/;
 const allDigits = /^\d+$/;
-const htmlEntities = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;'
-};
-
-const escapeCache = {};
-
-const escape = text => {
-  const cached = escapeCache[text];
-  if (cached) return cached;
-  const replaced = text.replace(/[&<>"'`=/]/g, c => htmlEntities[c]);
-  return (escapeCache[text] = replaced);
-};
-
 const tokenCaches = {
   js: {},
   css: {},
