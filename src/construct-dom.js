@@ -3,11 +3,12 @@ import SettingsDialog from './settings-dialog';
 
 export default function constructDom(root, options, els) {
   els.wrapper = el('div.Aura-editor');
-  els.codeWrapper = el('div.Aura-code-wrapper');
+  els.scrollContainer = el('div.Aura-scroll-container');
+  els.gutter = el('div.Aura-gutter');
   els.textareaWrapper = el('div.Aura-textarea-wrapper');
   els.toolbar = el('div.Aura-toolbar', { role: 'toolbar' });
 
-  els.syntaxHighlightOverlay = el('div.Aura-highlight-overlay', {
+  els.lines = el('div.Aura-lines', {
     role: 'presentation'
   });
 
@@ -37,15 +38,15 @@ export default function constructDom(root, options, els) {
     root,
     appendNodes(
       els.wrapper,
+      els.textarea,
       els.toolbar,
       appendNodes(
-        els.codeWrapper,
-        els.lineNumbers,
+        els.scrollContainer,
+        appendNodes(els.gutter, els.lineNumbers),
         appendNodes(
           els.textareaWrapper,
           appendNodes(els.cursorOverlay, els.cursor),
-          els.syntaxHighlightOverlay,
-          els.textarea
+          els.lines
         )
       ),
       settingsEl

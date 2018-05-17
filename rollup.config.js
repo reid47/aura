@@ -22,6 +22,10 @@ const mainEntry = {
     format: 'umd',
     name: 'Aura'
   },
+  watch: {
+    chokidar: true,
+    include: 'src/**'
+  },
   plugins: [
     resolve(),
     commonjs({

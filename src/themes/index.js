@@ -11,6 +11,6 @@ export function setTheme(els, themeKey = 'defaultLight') {
   if (!theme) throw new Error(`Could not apply unknown theme: ${themeKey}`);
   if (themeKey === currentThemeKey) return;
 
-  els.lineNumbers.style.color = theme.lineNumberTextColor;
-  els.lineNumbers.style.backgroundColor = theme.lineNumberBackgroundColor;
+  els.gutter.style.color = theme.gutterTextColor;
+  els.gutter.style.backgroundColor = theme.gutterBackgroundColor;
 }

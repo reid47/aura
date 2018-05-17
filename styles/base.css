@@ -13,6 +13,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 
 .Aura-editor * {
@@ -33,39 +34,42 @@
   cursor: pointer;
 }
 
-.Aura-code-wrapper {
+/* begin: scroll container */
+
+.Aura-scroll-container {
   flex-grow: 1;
+  overflow: auto;
   display: flex;
-  height: 100%;
-  width: 100%;
 }
 
-.Aura-textarea-wrapper {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
+/* end: scroll container */
+
+.Aura-gutter {
+  border-right: 1px solid var(--color-fg);
+  font-size: 1em;
+  padding: 0 8px;
+  user-select: none;
+  display: inline-block;
+  pointer-events: none;
 }
 
 .Aura-line-numbers {
-  margin-bottom: -32px;
   min-width: 40px;
-  background: transparent;
-  white-space: pre;
-  border: none;
-  resize: none;
-  border-right: 1px solid var(--color-fg);
   font-family: var(--textarea-font);
   line-height: inherit;
-  font-size: 1em;
-  padding: 0 8px;
   text-align: right;
+  position: relative;
+}
+
+.Aura-line-number {
+  width: 100%;
+  position: absolute;
+}
+
+.Aura-textarea-wrapper {
   overflow: hidden;
-  user-select: none;
-  display: block;
-  color: var(--color-fg);
-  pointer-events: none;
-  box-sizing: content-box;
+  cursor: text;
+  flex-grow: 1;
 }
 
 .Aura-cursor-overlay {
@@ -111,63 +115,33 @@
   }
 }
 
-.Aura-highlight-overlay {
+.Aura-lines {
   width: 100%;
-  position: absolute;
   font-family: var(--textarea-font);
   line-height: inherit;
   white-space: pre;
   overflow: hidden;
-  pointer-events: none;
   user-select: none;
   padding: 0 8px;
+  position: relative;
+}
+
+.Aura-line {
+  position: absolute;
 }
 
 .Aura-textarea {
   display: block;
   position: absolute;
-  width: 100%;
-  height: 100%;
-  padding: 0 8px;
-  margin: 0;
-  border: 0;
-  font-size: 1em;
-  font-family: var(--textarea-font);
-  line-height: inherit;
-  white-space: pre;
+  height: 120px;
+  opacity: 0;
+  border: none;
+  white-space: nowrap;
   overflow: auto;
-  resize: none;
-  background: transparent;
-  color: transparent;
-  caret-color: transparent;
 }
 
 .Aura-textarea:focus {
-  outline: none;
-}
-
-.Aura-textarea::selection {
-  background: var(--textarea-highlight-background);
-  color: var(--textarea-highlight-color);
-}
-
-.Aura-textarea::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.Aura-textarea::-webkit-scrollbar-track {
-  background-color: var(--color-bg);
-  padding: 2px;
-}
-
-.Aura-textarea::-webkit-scrollbar-thumb {
-  background-color: var(--color-bg);
-}
-
-.Aura-textarea:hover::-webkit-scrollbar-thumb,
-.Aura-textarea:focus::-webkit-scrollbar-thumb {
-  background-color: var(--color-fg);
+  /* outline: none; */
 }
 
 .Aura-token.keyword {
