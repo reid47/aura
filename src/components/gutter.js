@@ -17,7 +17,7 @@ export default class Gutter {
   };
 
   setHeight = newHeight => {
-    this.node.style.height = newHeight + 'px';
+    this.lineNumbersNode.style.height = newHeight + 'px';
   };
 
   drawLineNumbers = state => {
@@ -29,6 +29,8 @@ export default class Gutter {
       characterWidth,
       lastLineNumberWidth
     } = state;
+
+    console.log(firstVisibleLine, lastVisibleLine);
 
     let numbers = '';
 

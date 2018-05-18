@@ -23,18 +23,21 @@ export default class ScrollContainer {
   };
 
   calculateVisibleLines = state => {
-    const { lineHeight } = state;
+    const { lineHeight, lines } = state;
     const { scrollTop, scrollHeight, clientHeight } = this.node;
 
     if (scrollHeight <= clientHeight) {
       state.firstVisibleLine = 0;
-      state.lastVisibleLine = Math.ceil(clientHeight / lineHeight);
+      state.lastVisibleLine = Math.min(
+        lines.length,
+        Math.ceil(clientHeight / lineHeight)
+      );
       return;
     }
 
     state.firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight));
     state.lastVisibleLine = Math.min(
-      state.lines.length,
+      lines.length,
       Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight)
     );
   };
