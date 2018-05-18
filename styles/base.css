@@ -72,16 +72,26 @@
   flex-grow: 1;
 }
 
+.Aura-selection-overlay {
+  position: relative;
+}
+
+.Aura-active-line {
+  position: absolute;
+  padding: 0 8px;
+  width: 100%;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
 .Aura-cursor-overlay {
   width: 100%;
-  padding: 0 8px;
   position: absolute;
   font-family: var(--textarea-font);
   white-space: pre;
   overflow: hidden;
   pointer-events: none;
   user-select: none;
-  background-color: #fff1b0;
 }
 
 .Aura-cursor {
@@ -138,10 +148,6 @@
   border: none;
   white-space: nowrap;
   overflow: auto;
-}
-
-.Aura-textarea:focus {
-  /* outline: none; */
 }
 
 .Aura-token.keyword {

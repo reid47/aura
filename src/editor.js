@@ -1,24 +1,16 @@
-import { on, escape } from './util';
-import constructDom from './construct-dom';
-import * as keys from './key-events';
-import tokenize from './languages/js/tokenize';
-import {
-  insertTextAtCursor,
-  deleteTextAtCursor,
-  getIndentAtIndex,
-  getCursorPositionFromIndex
-} from './helpers/textarea-helper';
 import { measureCharacterWidth } from './helpers/font-helper';
-import SettingsDialog from './settings-dialog';
-import { setTheme } from './themes';
-
-const indentAfterChars = { '{': 1, '(': 1 };
+import TextArea from './components/textarea';
+import Gutter from './components/gutter';
+import ScrollContainer from './components/scroll-container';
+import TextContainer from './components/text-container';
+import TextOverlay from './components/text-overlay';
+import Wrapper from './components/wrapper';
+import SelectionOverlay from './components/selection-overlay';
 
 export default class Editor {
   constructor(root, options = {}) {
-    this.root = root;
     this.options = options;
-    this.els = {};
+
     this.state = {
       lines: [],
       lineStartIndexes: {},
@@ -30,18 +22,43 @@ export default class Editor {
       focused: false
     };
 
-    constructDom(this.root, this.options, this.els);
-    setTheme(this.els, options.theme || 'defaultLight');
+    this.wrapper = new Wrapper({ options: this.options });
 
-    this.settings = new SettingsDialog(this.els, this, this.options);
+    this.textArea = new TextArea({
+      onInput: this.onInput,
+      onFocus: this.onTextAreaFocusChange.bind(true),
+      onBlur: this.onTextAreaFocusChange.bind(false),
+      drawSelectionOverlay: this.drawSelectionOverlay,
+      getState: this.getState,
+      options: this.options
+    });
 
-    on(this.els.scrollContainer, 'scroll', this.onScroll);
-    on(this.els.textarea, 'input', this.onInput);
-    on(this.els.textarea, 'focus', this.onTextAreaFocus);
-    on(this.els.textarea, 'blur', this.onTextAreaBlur);
-    on(this.els.textarea, 'keydown', this.onTextareaKeyDown);
-    on(this.els.lines, 'mousedown', this.onLinesMouseDown);
-    on(this.els.settings, 'keydown', this.onSettingsKeyDown);
+    this.scrollContainer = new ScrollContainer({
+      onScroll: this.onScroll,
+      options: this.options
+    });
+
+    this.gutter = new Gutter({ options: this.options });
+    this.selectionOverlay = new SelectionOverlay({ options: this.options });
+    this.textContainer = new TextContainer({ options: this.options });
+
+    this.textOverlay = new TextOverlay({
+      onMouseDown: this.onTextOverlayMouseDown,
+      options: this.options
+    });
+
+    root.appendChild(
+      this.wrapper.init([
+        this.textArea.init(),
+        this.scrollContainer.init([
+          this.gutter.init(),
+          this.textContainer.init([
+            this.selectionOverlay.init(),
+            this.textOverlay.init()
+          ])
+        ])
+      ])
+    );
 
     this.setFontSize(options.fontSize || 16);
     this.setLineHeight(options.lineHeight || this.fontSize * 1.5);
@@ -53,7 +70,9 @@ export default class Editor {
     );
   }
 
-  setValue = (newValue, fromInput) => {
+  getState = () => this.state;
+
+  setValue = newValue => {
     this.state.lines = newValue.split('\n');
     let startIndex = 0;
     this.state.lineStartIndexes = this.state.lines.map(line => {
@@ -62,269 +81,114 @@ export default class Editor {
       return oldStartIndex;
     });
 
-    const contentHeight = this.state.lines.length * this.lineHeight;
-    this.els.gutter.style.height = `${contentHeight}px`;
-    this.els.textareaWrapper.style.height = `${contentHeight}px`;
-    this.els.lines.style.height = `${contentHeight}px`;
+    const contentHeight = this.state.lines.length * this.state.lineHeight;
+    this.gutter.setHeight(contentHeight);
+    // this.selectionOverlay.setHeight(contentHeight);
+    this.textContainer.setHeight(contentHeight);
+    this.textOverlay.setHeight(contentHeight);
 
-    this.calculateVisibleLines();
-    this.drawLines();
-    this.drawCursorOverlay();
+    this.scrollContainer.calculateVisibleLines(this.state);
+    this.textOverlay.draw(this.state);
+    this.drawSelectionOverlay();
 
     const lineCount = this.state.lines.length;
     if (this.state.lastLineCount !== lineCount) {
       this.state.lastLineCount = lineCount;
-      this.drawLineNumbers(lineCount);
+      this.gutter.drawLineNumbers(this.state);
     }
-
-    if (!fromInput) this.els.textarea.value = newValue;
   };
 
   setDisableSyntaxHighlighting = shouldDisable => {
-    if (this.disableSyntaxHighlighting === shouldDisable) return;
-    this.disableSyntaxHighlighting = shouldDisable;
-    this.drawLines();
+    if (this.state.disableSyntaxHighlighting === shouldDisable) return;
+    this.state.disableSyntaxHighlighting = shouldDisable;
+    this.textOverlay.draw(this.state);
   };
 
   setIndentSize = newIndentSize => {
-    if (this.indentSize === newIndentSize) return;
-    this.indentSize = newIndentSize;
-    this.indentString = '';
-    for (let i = 0; i < newIndentSize; i++) this.indentString += ' ';
+    if (this.state.indentSize === newIndentSize) return;
+    this.state.indentSize = newIndentSize;
+    this.state.indentString = '';
+    for (let i = 0; i < newIndentSize; i++) this.state.indentString += ' ';
   };
 
   setFontSize = newFontSize => {
     newFontSize = parseInt(newFontSize, 10);
     if (this.fontSize === newFontSize) return;
     this.fontSize = newFontSize;
-    this.els.wrapper.style.fontSize = newFontSize + 'px';
-    this.characterWidth = measureCharacterWidth('monospace', this.fontSize);
+    this.wrapper.setFontSize(newFontSize);
+    this.state.characterWidth = measureCharacterWidth(
+      'monospace',
+      this.fontSize
+    );
   };
 
   setLineHeight = newLineHeight => {
     newLineHeight = parseInt(newLineHeight, 10);
-    if (this.lineHeight === newLineHeight) return;
-    this.lineHeight = newLineHeight;
-    this.els.wrapper.style.lineHeight = `${newLineHeight}px`;
-    this.els.cursorOverlay.style.height = `${newLineHeight}px`;
+    if (this.state.lineHeight === newLineHeight) return;
+    this.state.lineHeight = newLineHeight;
+    this.wrapper.setLineHeight(newLineHeight);
+    this.selectionOverlay.setLineHeight(newLineHeight);
   };
 
   setTabInsertsIndent = tabInsertsIndent => {
-    if (this.tabInsertsIndent === tabInsertsIndent) return;
-    this.tabInsertsIndent = tabInsertsIndent;
-  };
-
-  focusTextArea = () => {
-    return this.els.textarea.focus();
-  };
-
-  disableTextArea = () => {
-    this.els.textarea.setAttribute('disabled', 'true');
-  };
-
-  enableTextArea = () => {
-    this.els.textarea.removeAttribute('disabled');
-  };
-
-  drawCursorOverlay = () => {
-    this.els.cursorOverlay.hidden = true;
-    if (!this.state.focused) return;
-    if (this.els.textarea.selectionStart !== this.els.textarea.selectionEnd)
-      return;
-    if (this.state.cursorLine < this.state.firstVisibleLine) return;
-    if (this.state.cursorLine > this.state.lastVisibleLine) return;
-
-    const { scrollTop, scrollLeft } = this.els.scrollContainer;
-    const lineOffset = this.state.cursorLine * this.lineHeight - scrollTop;
-    const columnOffset =
-      this.state.cursorColumn * this.characterWidth - scrollLeft;
-    this.els.cursorOverlay.style.transform = `translateY(${lineOffset}px)`;
-    this.els.cursor.style.transform = `translateX(${columnOffset}px)`;
-    this.els.cursorOverlay.hidden = false;
-  };
-
-  drawLines = () => {
-    let visibleLines = '';
-    if (this.disableSyntaxHighlighting) {
-      for (
-        let line = this.state.firstVisibleLine;
-        line <= this.state.lastVisibleLine;
-        line++
-      ) {
-        visibleLines += `<div class="Aura-line" style="top: ${line *
-          this.lineHeight}px">${escape(this.state.lines[line] || '')}</div>`;
-      }
-    } else {
-      visibleLines = tokenize({
-        lines: this.state.lines,
-        firstVisibleLine: this.state.firstVisibleLine,
-        lastVisibleLine: this.state.lastVisibleLine
-      });
-    }
-
-    this.els.lines.innerHTML = visibleLines;
-  };
-
-  drawLineNumbers = () => {
-    let numbers = '';
-
-    for (
-      let line = this.state.firstVisibleLine;
-      line < this.state.lastVisibleLine;
-      line++
-    ) {
-      numbers += `<div class="Aura-line-number" style="top: ${line *
-        this.lineHeight}px">${line + 1}</div>`;
-    }
-
-    this.els.lineNumbers.innerHTML = numbers;
-
-    const newLineNumberWidth =
-      `${this.state.lastLineCount}`.length * this.characterWidth + 'px';
-    if (this.state.lastLineNumberWidth !== newLineNumberWidth) {
-      this.els.lineNumbers.style.width = newLineNumberWidth;
-      this.state.lastLineNumberWidth = newLineNumberWidth;
-    }
-  };
-
-  calculateVisibleLines = () => {
-    const { scrollTop, scrollHeight, clientHeight } = this.els.scrollContainer;
-    const lineHeight = this.lineHeight;
-
-    if (scrollHeight <= clientHeight) {
-      this.state.firstVisibleLine = 0;
-      this.state.lastVisibleLine = Math.ceil(clientHeight / lineHeight);
-      return;
-    }
-
-    this.state.firstVisibleLine = Math.max(
-      0,
-      Math.floor(scrollTop / lineHeight)
-    );
-    this.state.lastVisibleLine = Math.min(
-      this.state.lines.length,
-      Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight)
-    );
-  };
-
-  calculateCursorPosition = () => {
-    const { cursorLine, cursorColumn } = getCursorPositionFromIndex(
-      this.state.lineStartIndexes,
-      this.els.textarea.selectionStart
-    );
-
-    this.state.cursorLine = cursorLine;
-    this.state.cursorColumn = cursorColumn;
+    if (this.state.tabInsertsIndent === tabInsertsIndent) return;
+    this.state.tabInsertsIndent = tabInsertsIndent;
   };
 
   onScroll = evt => {
     const newScrollTop = evt.target.scrollTop;
     if (newScrollTop === this.state.lastScrollTop) {
-      this.drawLines();
-      this.drawCursorOverlay();
+      this.textOverlay.draw(this.state);
+      this.drawSelectionOverlay();
       return;
     }
 
     this.state.lastScrollTop = newScrollTop;
-    this.calculateVisibleLines();
-    this.drawLines();
-    this.drawLineNumbers();
-    this.drawCursorOverlay();
+    this.scrollContainer.calculateVisibleLines(this.state);
+    this.textOverlay.draw(this.state);
+    this.gutter.drawLineNumbers(this.state);
+    this.drawSelectionOverlay();
   };
 
   onInput = evt => {
-    this.setValue(evt.target.value, true);
-    this.calculateCursorPosition();
-    this.drawCursorOverlay();
+    this.setValue(evt.target.value);
+    this.textArea.calculateCursorPosition(this.state);
+    this.drawSelectionOverlay();
   };
 
-  onLinesMouseDown = evt => {
+  onTextOverlayMouseDown = evt => {
     const rect = evt.currentTarget.getBoundingClientRect();
     const offsetX = evt.clientX - rect.left - 8; // subtract padding
     const offsetY = evt.clientY - rect.top;
 
     let clickedLine = 0;
-    while (clickedLine * this.lineHeight < offsetY) {
+    while (clickedLine * this.state.lineHeight < offsetY) {
       clickedLine++;
     }
 
     let charIndex = this.state.lineStartIndexes[clickedLine - 1];
     charIndex += Math.min(
       this.state.lines[clickedLine - 1].length,
-      Math.round(offsetX / this.characterWidth)
+      Math.round(offsetX / this.state.characterWidth)
     );
 
     setTimeout(() => {
-      this.els.textarea.setSelectionRange(charIndex, charIndex);
-      this.els.textarea.focus();
-
-      this.calculateCursorPosition();
-      this.drawCursorOverlay();
+      this.textArea.setSelection(charIndex);
+      this.textArea.focus();
+      this.textArea.calculateCursorPosition(this.state);
+      this.drawSelectionOverlay();
     }, 0);
   };
 
-  onTextAreaFocus = () => {
-    this.state.focused = true;
-    this.drawCursorOverlay();
+  onTextAreaFocusChange = focused => {
+    this.state.focused = focused;
+    this.drawSelectionOverlay();
   };
 
-  onTextAreaBlur = () => {
-    this.state.focused = false;
-    this.drawCursorOverlay();
-  };
-
-  onTextareaKeyDown = evt => {
-    if (evt.ctrlKey) {
-      if (keys.isComma(evt)) {
-        this.settings.toggle();
-      }
-    }
-
-    if (keys.isNavigating(evt)) {
-      setTimeout(() => {
-        this.calculateCursorPosition();
-        this.drawCursorOverlay();
-      }, 0);
-      return;
-    }
-
-    if (keys.isEnter(evt)) {
-      const { indent, lastNonSpaceChar } = getIndentAtIndex(
-        this.els.textarea,
-        this.els.textarea.selectionStart
-      );
-
-      setTimeout(() => {
-        const increaseIndent = indentAfterChars[lastNonSpaceChar];
-        insertTextAtCursor(
-          this.els.textarea,
-          indent + (increaseIndent ? this.indentString : '')
-        );
-      }, 0);
-
-      return;
-    }
-
-    // if (keys.isTab(evt) && this.tabInsertsIndent) {
-    //   evt.preventDefault();
-    //   if (!evt.shiftKey)
-    //     insertTextAtCursor(this.els.textarea, this.indentString);
-    //   else deleteTextAtCursor(this.els.textarea, this.indentSize);
-    //   return;
-    // }
-  };
-
-  onSettingsKeyDown = evt => {
-    if (evt.ctrlKey && keys.isComma(evt)) {
-      this.settings.toggle();
-      evt.preventDefault();
-      return;
-    }
-
-    if (keys.isEscape(evt) && this.settings.isOpen()) {
-      this.settings.close();
-      evt.preventDefault();
-      return;
-    }
+  drawSelectionOverlay = () => {
+    this.selectionOverlay.draw(
+      this.state,
+      this.scrollContainer.getScrollInfo()
+    );
   };
 }
