@@ -34,15 +34,11 @@
   cursor: pointer;
 }
 
-/* begin: scroll container */
-
 .Aura-scroll-container {
   flex-grow: 1;
   overflow: auto;
   display: flex;
 }
-
-/* end: scroll container */
 
 .Aura-gutter {
   border-right: 1px solid var(--color-fg);
@@ -67,7 +63,6 @@
 }
 
 .Aura-textarea-wrapper {
-  overflow: hidden;
   cursor: text;
   flex-grow: 1;
 }
@@ -125,8 +120,7 @@
   }
 }
 
-.Aura-lines {
-  width: 100%;
+.Aura-text-overlay {
   font-family: var(--textarea-font);
   line-height: inherit;
   white-space: pre;

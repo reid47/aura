@@ -4,9 +4,7 @@ export default class TextContainer {
   init = children => {
     return el(
       'div.Aura-textarea-wrapper',
-      {
-        ref: node => (this.node = node)
-      },
+      { ref: node => (this.node = node) },
       children
     );
   };

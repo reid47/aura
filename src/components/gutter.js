@@ -10,19 +10,20 @@ export default class Gutter {
     ]);
   };
 
-  setHeight = newHeight => {
-    this.lineNumbersNode.style.height = newHeight + 'px';
+  setSize = (newWidth, newHeight) => {
+    if (newWidth !== this.lastWidth) {
+      this.lastWidth = newWidth;
+      this.lineNumbersNode.style.width = newWidth + 'px';
+    }
+
+    if (newHeight !== this.lastHeight) {
+      this.lastHeight = newHeight;
+      this.lineNumbersNode.style.height = newHeight + 'px';
+    }
   };
 
   drawLineNumbers = state => {
-    const {
-      firstVisibleLine,
-      lastVisibleLine,
-      lineHeight,
-      lastLineCount,
-      characterWidth,
-      lastLineNumberWidth
-    } = state;
+    const { firstVisibleLine, lastVisibleLine, lineHeight } = state;
 
     let numbers = '';
 
@@ -32,12 +33,5 @@ export default class Gutter {
     }
 
     this.lineNumbersNode.innerHTML = numbers;
-
-    const newLineNumberWidth =
-      `${lastLineCount}`.length * characterWidth + 'px';
-    if (lastLineNumberWidth !== newLineNumberWidth) {
-      this.lineNumbersNode.style.width = newLineNumberWidth;
-      state.lastLineNumberWidth = newLineNumberWidth;
-    }
   };
 }

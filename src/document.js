@@ -6,30 +6,35 @@ import { dispatchTextChange, dispatchCursorMove } from './custom-events';
  * position of the cursor within the document.
  */
 export default class Document {
-  constructor(options) {
+  constructor(options = {}) {
     this.lines = [];
     this.lineStartIndexes = [];
     this.cursorLine = 0;
     this.cursorColumn = 0;
     this.lastSavedCursorColumn = 0;
+    this.longestLineLength = 0;
 
     this.setText(options.initialValue || '');
   }
 
   getLine = index => this.lines[index];
+
   getLines = () => this.lines;
+
   getLineCount = () => this.lines.length;
+
   getText = () => this.lines.join('\n');
+
   getCursorPosition = () => ({
     cursorLine: this.cursorLine,
     cursorColumn: this.cursorColumn
   });
 
-  updateLineAtCursor = (newLineText, newCursorColumn) => {
-    this.setLine(this.cursorLine, newLineText);
-    this.cursorColumn = newCursorColumn;
-    this.lastSavedCursorColumn = this.cursorColumn;
-    dispatchTextChange();
+  getLongestLineLength = () => this.longestLineLength;
+
+  setText = newText => {
+    this.lines = newText.split('\n');
+    this.calculateLineStartIndexes();
   };
 
   setLine = (index, newLineText) => {
@@ -37,9 +42,11 @@ export default class Document {
     this.calculateLineStartIndexes();
   };
 
-  setText = newText => {
-    this.lines = newText.split('\n');
-    this.calculateLineStartIndexes();
+  updateLineAtCursor = (newLineText, newCursorColumn) => {
+    this.setLine(this.cursorLine, newLineText);
+    this.cursorColumn = newCursorColumn;
+    this.lastSavedCursorColumn = this.cursorColumn;
+    dispatchTextChange();
   };
 
   setCursorPosition = (newCursorLine, newCursorColumn) => {
@@ -53,27 +60,59 @@ export default class Document {
 
   calculateLineStartIndexes = () => {
     let startIndex = 0;
+    let longest = 0;
     // TODO: can probably start at lineIndex here
     this.lineStartIndexes = this.lines.map(line => {
       const oldStartIndex = startIndex;
-      startIndex = line.length + startIndex + 1;
+      const lineLength = line.length;
+      longest = Math.max(longest, lineLength);
+      startIndex = lineLength + startIndex + 1;
       return oldStartIndex;
     });
+
+    this.longestLineLength = Math.max(this.longestLineLength, longest);
   };
 
   insertLineBreakAtCursor = () => {
-    if (this.cursorLine === this.lines.length - 1) {
-      this.lines.push('');
-    } else {
+    const currentLine = this.lines[this.cursorLine];
+    let text;
+
+    if (this.cursorColumn === 0) {
+      // we're at the beginning of a line
+      this.lines.splice(this.cursorLine, 0, '');
+      text = currentLine;
+    } else if (this.cursorColumn === currentLine.length) {
+      // we're at the end of a line
       this.lines.splice(this.cursorLine + 1, 0, '');
+      text = '';
+    } else {
+      const firstPart = currentLine.substring(0, this.cursorColumn);
+      const secondPart = currentLine.substring(this.cursorColumn);
+      this.lines[this.cursorLine] = firstPart;
+      this.lines.splice(this.cursorLine + 1, 0, secondPart);
+      text = secondPart;
     }
 
     this.cursorLine += 1;
     this.cursorColumn = 0;
-
+    this.lastSavedCursorColumn = this.cursorColumn;
     dispatchTextChange();
     dispatchCursorMove(this.getCursorPosition());
-    return { text: '', cursorColumn: this.cursorColumn };
+    return { text, cursorColumn: this.cursorColumn };
+  };
+
+  removeLineBreakAtCursor = () => {
+    const currentLine = this.lines[this.cursorLine];
+    const prevLine = this.lines[this.cursorLine - 1] || '';
+    const text = prevLine + currentLine;
+    this.lines.splice(this.cursorLine - 1, 2, text);
+
+    this.cursorColumn = prevLine.length;
+    this.lastSavedCursorColumn = this.cursorColumn;
+    this.cursorLine -= 1;
+    dispatchTextChange();
+    dispatchCursorMove(this.getCursorPosition());
+    return { text, cursorColumn: this.cursorColumn };
   };
 
   moveCursorLineUp = () => {
@@ -86,7 +125,6 @@ export default class Document {
     this.cursorLine -= 1;
     this.cursorColumn = Math.min(this.lastSavedCursorColumn, prevLine.length);
 
-    console.log();
     dispatchCursorMove(this.getCursorPosition());
     return { text: prevLine, cursorColumn: this.cursorColumn };
   };

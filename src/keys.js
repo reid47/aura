@@ -1,4 +1,5 @@
 export const keyCodes = {
+  BACKSPACE: 8,
   TAB: 9,
   ENTER: 13,
   ESCAPE: 27,
@@ -8,6 +9,7 @@ export const keyCodes = {
   UP: 38,
   RIGHT: 39,
   DOWN: 40,
+  DELETE: 46,
   COMMA: 188
 };
 

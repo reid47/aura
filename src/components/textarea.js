@@ -50,6 +50,12 @@ export default class TextArea {
 
   onKeyDown = evt => {
     switch (keyCode(evt)) {
+      case keyCodes.BACKSPACE:
+        if (this.node.selectionStart !== 0) return;
+        evt.preventDefault();
+        this.updateState(this.document.removeLineBreakAtCursor());
+        return;
+
       case keyCodes.ENTER:
         evt.preventDefault();
         this.updateState(this.document.insertLineBreakAtCursor());

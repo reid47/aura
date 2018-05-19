@@ -15,7 +15,7 @@ export default class Editor {
 
     this.state = {
       firstVisibleLine: 0,
-      lastVisibleLine: 200,
+      lastVisibleLine: 0,
       lastScrollTop: 0,
       focused: false
     };
@@ -68,14 +68,20 @@ export default class Editor {
       options.disableSyntaxHighlighting || false
     );
 
+    this.scrollContainer.calculateVisibleLines(this.state);
     this.drawTextOverlay();
   }
 
   drawTextOverlay = () => {
     const contentHeight = this.document.getLineCount() * this.state.lineHeight;
-    this.gutter.setHeight(contentHeight);
+    const contentWidth =
+      this.document.getLongestLineLength() * this.state.characterWidth;
+    const gutterWidth =
+      `${this.document.getLineCount()}`.length * this.state.characterWidth;
+
+    this.gutter.setSize(gutterWidth, contentHeight);
     this.textContainer.setHeight(contentHeight);
-    this.textOverlay.setHeight(contentHeight);
+    this.textOverlay.setSize(contentWidth, contentHeight);
     this.scrollContainer.calculateVisibleLines(this.state);
     this.gutter.drawLineNumbers(this.state);
     this.scrollContainer.calculateVisibleLines(this.state);

@@ -9,18 +9,14 @@ export default class TextOverlay {
 
   init = children => {
     return el(
-      'div.Aura-lines',
-      {
-        ref: node => (this.node = node),
-        on: {
-          mousedown: this.onMouseDown
-        }
-      },
+      'div.Aura-text-overlay',
+      { ref: node => (this.node = node), on: { mousedown: this.onMouseDown } },
       children
     );
   };
 
-  setHeight = newHeight => {
+  setSize = (newWidth, newHeight) => {
+    this.node.style.width = newWidth + 'px';
     this.node.style.height = newHeight + 'px';
   };
 
