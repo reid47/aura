@@ -2,18 +2,12 @@ import { el } from '../dom';
 
 export default class Gutter {
   init = () => {
-    return el(
-      'div.Aura-gutter',
-      {
-        ref: node => (this.node = node)
-      },
-      [
-        el('div.Aura-line-numbers', {
-          ref: node => (this.lineNumbersNode = node),
-          role: 'presentation'
-        })
-      ]
-    );
+    return el('div.Aura-gutter', { ref: node => (this.node = node) }, [
+      el('div.Aura-line-numbers', {
+        ref: node => (this.lineNumbersNode = node),
+        role: 'presentation'
+      })
+    ]);
   };
 
   setHeight = newHeight => {

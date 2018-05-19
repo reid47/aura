@@ -45,6 +45,7 @@ export default class Document {
   setCursorPosition = (newCursorLine, newCursorColumn) => {
     this.cursorLine = newCursorLine;
     this.cursorColumn = newCursorColumn;
+    this.lastSavedCursorColumn = newCursorColumn;
     const text = this.lines[this.cursorLine];
     dispatchCursorMove();
     return { text, cursorColumn: this.cursorColumn };
@@ -85,6 +86,7 @@ export default class Document {
     this.cursorLine -= 1;
     this.cursorColumn = Math.min(this.lastSavedCursorColumn, prevLine.length);
 
+    console.log();
     dispatchCursorMove(this.getCursorPosition());
     return { text: prevLine, cursorColumn: this.cursorColumn };
   };
@@ -122,6 +124,7 @@ export default class Document {
   moveCursorColumnUp = () => {
     if (this.cursorColumn === this.lines[this.cursorLine].length) {
       this.cursorColumn = 0;
+      this.lastSavedCursorColumn = this.cursorColumn;
       const ret = this.moveCursorLineDown();
       this.lastSavedCursorColumn = this.cursorColumn;
 
@@ -139,6 +142,7 @@ export default class Document {
   moveCursorColumnDown = () => {
     if (this.cursorColumn === 0) {
       this.cursorColumn = +Infinity;
+      this.lastSavedCursorColumn = this.cursorColumn;
       const ret = this.moveCursorLineUp();
       this.lastSavedCursorColumn = this.cursorColumn;
 

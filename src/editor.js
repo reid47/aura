@@ -21,26 +21,21 @@ export default class Editor {
     };
 
     this.document = new Document(options);
-
-    this.wrapper = new Wrapper({ options: this.options });
-
+    this.wrapper = new Wrapper();
     this.textArea = new TextArea({
       onFocus: () => this.onTextAreaFocusChange(true),
       onBlur: () => this.onTextAreaFocusChange(false),
       options: this.options,
       document: this.document
     });
-
     this.scrollContainer = new ScrollContainer({
       onScroll: this.onScroll,
       options: this.options,
       document: this.document
     });
-
-    this.gutter = new Gutter({ options: this.options });
+    this.gutter = new Gutter();
     this.selectionOverlay = new SelectionOverlay({ document: this.document });
-    this.textContainer = new TextContainer({ options: this.options });
-
+    this.textContainer = new TextContainer();
     this.textOverlay = new TextOverlay({
       onMouseDown: this.onTextOverlayMouseDown,
       document: this.document,
