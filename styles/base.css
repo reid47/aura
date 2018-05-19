@@ -43,7 +43,7 @@
 .Aura-gutter {
   border-right: 1px solid var(--color-fg);
   font-size: 1em;
-  padding: 0 8px;
+  /* padding: 0 8px; */
   user-select: none;
   display: inline-block;
   pointer-events: none;
@@ -73,7 +73,6 @@
 
 .Aura-active-line {
   position: absolute;
-  padding: 0 8px;
   width: 100%;
   border-top: 2px solid rgba(0, 0, 0, 0.1);
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
@@ -120,13 +119,22 @@
   }
 }
 
+.Aura-selection {
+  background: lightblue;
+  font-family: var(--textarea-font);
+  line-height: inherit;
+  white-space: pre;
+  user-select: none;
+  position: absolute;
+  display: inline-block;
+}
+
 .Aura-text-overlay {
   font-family: var(--textarea-font);
   line-height: inherit;
   white-space: pre;
   overflow: hidden;
   user-select: none;
-  padding: 0 8px;
   position: relative;
 }
 

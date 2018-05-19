@@ -2,15 +2,24 @@ import { el } from '../dom';
 import { escape } from '../util';
 
 export default class TextOverlay {
-  constructor({ onMouseDown, document }) {
-    this.onMouseDown = onMouseDown;
+  constructor({ textArea, document, getState, drawSelectionOverlay }) {
+    this.textArea = textArea;
     this.document = document;
+    this.getState = getState;
+    this.drawSelectionOverlay = drawSelectionOverlay;
   }
 
   init = children => {
     return el(
       'div.Aura-text-overlay',
-      { ref: node => (this.node = node), on: { mousedown: this.onMouseDown } },
+      {
+        ref: node => (this.node = node),
+        on: {
+          mousedown: this.onMouseDown,
+          mouseup: this.onMouseUp,
+          mousemove: this.onMouseMove
+        }
+      },
       children
     );
   };
@@ -34,5 +43,52 @@ export default class TextOverlay {
     }
 
     this.node.innerHTML = visibleLines;
+  };
+
+  getCursorPositionFromEvent = evt => {
+    const { characterWidth, lineHeight } = this.getState();
+    const rect = evt.currentTarget.getBoundingClientRect();
+    const offsetX = evt.clientX - rect.left;
+    const offsetY = evt.clientY - rect.top;
+
+    // TODO: binary search?
+    let newCursorLine = 0;
+    while (newCursorLine * lineHeight < offsetY) {
+      newCursorLine++;
+    }
+    newCursorLine--;
+
+    const newCursorColumn = Math.min(
+      this.document.getLine(newCursorLine).length,
+      Math.round(offsetX / characterWidth)
+    );
+
+    return [newCursorLine, newCursorColumn];
+  };
+
+  onMouseDown = evt => {
+    this.isMouseDown = true;
+    this.document.selectionActive = false;
+    const [cursorLine, cursorColumn] = this.getCursorPositionFromEvent(evt);
+
+    this.textArea.updateState(
+      this.document.setCursorPosition(cursorLine, cursorColumn)
+    );
+
+    setTimeout(() => {
+      this.textArea.focus();
+      this.drawSelectionOverlay();
+    }, 0);
+  };
+
+  onMouseUp = () => {
+    this.isMouseDown = false;
+  };
+
+  onMouseMove = evt => {
+    if (!this.isMouseDown) return;
+    const [cursorLine, cursorColumn] = this.getCursorPositionFromEvent(evt);
+    this.document.setSelectionEnd(cursorLine, cursorColumn);
+    this.drawSelectionOverlay();
   };
 }

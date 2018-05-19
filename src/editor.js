@@ -37,9 +37,11 @@ export default class Editor {
     this.selectionOverlay = new SelectionOverlay({ document: this.document });
     this.textContainer = new TextContainer();
     this.textOverlay = new TextOverlay({
-      onMouseDown: this.onTextOverlayMouseDown,
       document: this.document,
-      options: this.options
+      textArea: this.textArea,
+      options: this.options,
+      getState: () => this.state,
+      drawSelectionOverlay: this.drawSelectionOverlay
     });
 
     initCustomEvents(root, {
@@ -73,11 +75,11 @@ export default class Editor {
   }
 
   drawTextOverlay = () => {
-    const contentHeight = this.document.getLineCount() * this.state.lineHeight;
+    const lineCount = this.document.getLineCount();
+    const contentHeight = lineCount * this.state.lineHeight;
     const contentWidth =
       this.document.getLongestLineLength() * this.state.characterWidth;
-    const gutterWidth =
-      `${this.document.getLineCount()}`.length * this.state.characterWidth;
+    const gutterWidth = `${lineCount}`.length * this.state.characterWidth;
 
     this.gutter.setSize(gutterWidth, contentHeight);
     this.textContainer.setHeight(contentHeight);
@@ -139,32 +141,6 @@ export default class Editor {
     this.textOverlay.draw(this.state);
     this.gutter.drawLineNumbers(this.state);
     this.drawSelectionOverlay();
-  };
-
-  onTextOverlayMouseDown = evt => {
-    const rect = evt.currentTarget.getBoundingClientRect();
-    const offsetX = evt.clientX - rect.left - 8; // subtract padding
-    const offsetY = evt.clientY - rect.top;
-
-    let newCursorLine = 0;
-    while (newCursorLine * this.state.lineHeight < offsetY) {
-      newCursorLine++;
-    }
-    newCursorLine--;
-
-    const newCursorColumn = Math.min(
-      this.document.getLine(newCursorLine).length,
-      Math.round(offsetX / this.state.characterWidth)
-    );
-
-    this.textArea.updateState(
-      this.document.setCursorPosition(newCursorLine, newCursorColumn)
-    );
-
-    setTimeout(() => {
-      this.textArea.focus();
-      this.drawSelectionOverlay();
-    }, 0);
   };
 
   onTextAreaFocusChange = focused => {

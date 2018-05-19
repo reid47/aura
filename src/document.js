@@ -13,6 +13,9 @@ export default class Document {
     this.cursorColumn = 0;
     this.lastSavedCursorColumn = 0;
     this.longestLineLength = 0;
+    this.selectionActive = false;
+    this.selectionEndLine = 0;
+    this.selectionEndColumn = 0;
 
     this.setText(options.initialValue || '');
   }
@@ -28,6 +31,14 @@ export default class Document {
   getCursorPosition = () => ({
     cursorLine: this.cursorLine,
     cursorColumn: this.cursorColumn
+  });
+
+  getState = () => ({
+    cursorLine: this.cursorLine,
+    cursorColumn: this.cursorColumn,
+    selectionActive: this.selectionActive,
+    selectionEndLine: this.selectionEndLine,
+    selectionEndColumn: this.selectionEndColumn
   });
 
   getLongestLineLength = () => this.longestLineLength;
@@ -213,5 +224,20 @@ export default class Document {
 
     dispatchCursorMove(this.getCursorPosition());
     return { cursorColumn: this.cursorColumn, text };
+  };
+
+  getSelection = () => {
+    if (this.selectionEndLine === this.cursorLine) {
+      const startColumn = Math.min(this.selectionEndColumn, this.cursorColumn);
+      const endColumn = Math.max(this.selectionEndColumn, this.cursorColumn);
+      return this.lines[this.cursorLine].substring(startColumn, endColumn);
+    }
+  };
+
+  setSelectionEnd = (endLine, endColumn) => {
+    this.selectionEndLine = endLine;
+    this.selectionEndColumn = endColumn;
+    this.selectionActive = true;
+    console.log(this.getSelection());
   };
 }
