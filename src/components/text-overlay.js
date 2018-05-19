@@ -2,8 +2,9 @@ import { el } from '../dom';
 import { escape } from '../util';
 
 export default class TextOverlay {
-  constructor({ onMouseDown }) {
+  constructor({ onMouseDown, document }) {
     this.onMouseDown = onMouseDown;
+    this.document = document;
   }
 
   init = children => {
@@ -24,8 +25,9 @@ export default class TextOverlay {
   };
 
   draw = state => {
-    const { firstVisibleLine, lastVisibleLine, lineHeight, lines } = state;
+    const { firstVisibleLine, lastVisibleLine, lineHeight } = state;
 
+    const lines = this.document.getLines();
     let visibleLines = '';
     for (let line = firstVisibleLine; line <= lastVisibleLine; line++) {
       const text = lines[line];

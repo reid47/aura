@@ -148,6 +148,10 @@
   border: none;
   white-space: nowrap;
   overflow: auto;
+
+  /* temporary: */
+  opacity: 1;
+  position: relative;
 }
 
 .Aura-token.keyword {

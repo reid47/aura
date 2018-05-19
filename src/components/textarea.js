@@ -1,29 +1,12 @@
 import { el } from '../dom';
-import * as keys from '../key-events';
-import {
-  insertTextAtCursor,
-  deleteTextAtCursor,
-  getIndentAtIndex,
-  getCursorPositionFromIndex
-} from '../helpers/textarea-helper';
-
-const indentAfterChars = { '{': 1, '(': 1 };
+import { keyCodes, keyCode, ctrl } from '../keys';
 
 export default class TextArea {
-  constructor({
-    options,
-    onInput,
-    onBlur,
-    onFocus,
-    drawSelectionOverlay,
-    getState
-  }) {
-    this.onInput = onInput;
+  constructor({ options, onBlur, onFocus, document }) {
     this.onBlur = onBlur;
     this.onFocus = onFocus;
-    this.drawSelectionOverlay = drawSelectionOverlay;
-    this.getState = getState;
     this.options = options;
+    this.document = document;
   }
 
   init = () => {
@@ -42,64 +25,73 @@ export default class TextArea {
       }
     });
 
-    if (this.options.initialValue) {
-      elt.value = this.options.initialValue;
-    }
-
+    elt.value = this.document.getLine(0);
     return elt;
   };
 
-  focus = () => {
-    this.node.focus();
+  focus = () => this.node.focus();
+
+  updateState = ({ text, cursorColumn }) => {
+    if (text != null) {
+      this.node.value = text;
+    }
+
+    if (cursorColumn != null) {
+      this.node.selectionStart = this.node.selectionEnd = cursorColumn;
+    }
   };
 
-  setSelection = (start, end = start) => {
-    this.node.setSelectionRange(start, end);
-  };
-
-  calculateCursorPosition = state => {
-    const { cursorLine, cursorColumn } = getCursorPositionFromIndex(
-      state.lineStartIndexes,
-      this.node.selectionStart
+  onInput = evt => {
+    this.document.updateLineAtCursor(
+      evt.target.value,
+      evt.target.selectionStart
     );
-
-    state.cursorLine = cursorLine;
-    state.cursorColumn = cursorColumn;
   };
 
   onKeyDown = evt => {
-    const state = this.getState();
+    switch (keyCode(evt)) {
+      case keyCodes.ENTER:
+        evt.preventDefault();
+        this.updateState(this.document.insertLineBreakAtCursor());
+        return;
 
-    if (keys.isNavigating(evt)) {
-      setTimeout(() => {
-        this.calculateCursorPosition(state);
-        this.drawSelectionOverlay();
-      }, 0);
-      return;
-    }
+      case keyCodes.LEFT:
+        evt.preventDefault();
+        this.updateState(this.document.moveCursorColumnDown());
+        return;
 
-    if (keys.isEnter(evt)) {
-      const { indent, lastNonSpaceChar } = getIndentAtIndex(
-        this.node,
-        this.node.selectionStart
-      );
+      case keyCodes.RIGHT:
+        evt.preventDefault();
+        this.updateState(this.document.moveCursorColumnUp());
+        return;
 
-      setTimeout(() => {
-        const increaseIndent = indentAfterChars[lastNonSpaceChar];
-        insertTextAtCursor(
-          this.node,
-          indent + (increaseIndent ? state.indentString : '')
+      case keyCodes.UP:
+        evt.preventDefault();
+        this.updateState(this.document.moveCursorLineUp());
+        return;
+
+      case keyCodes.DOWN:
+        evt.preventDefault();
+        this.updateState(this.document.moveCursorLineDown());
+        return;
+
+      case keyCodes.HOME:
+        evt.preventDefault();
+        this.updateState(
+          ctrl(evt)
+            ? this.document.moveCursorDocumentStart()
+            : this.document.moveCursorLineStart()
         );
-      }, 0);
+        return;
 
-      return;
-    }
-
-    if (keys.isTab(evt) && state.tabInsertsIndent) {
-      evt.preventDefault();
-      if (!evt.shiftKey) insertTextAtCursor(this.node, state.indentString);
-      else deleteTextAtCursor(this.node, state.indentSize);
-      return;
+      case keyCodes.END:
+        evt.preventDefault();
+        this.updateState(
+          ctrl(evt)
+            ? this.document.moveCursorDocumentEnd()
+            : this.document.moveCursorLineEnd()
+        );
+        return;
     }
   };
 }

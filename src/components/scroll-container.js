@@ -1,8 +1,9 @@
 import { el } from '../dom';
 
 export default class ScrollContainer {
-  constructor({ onScroll }) {
+  constructor({ onScroll, document }) {
     this.onScroll = onScroll;
+    this.document = document;
   }
 
   init = children => {
@@ -18,18 +19,17 @@ export default class ScrollContainer {
     );
   };
 
-  getScrollInfo = () => {
-    return this.node;
-  };
+  getScrollInfo = () => this.node;
 
   calculateVisibleLines = state => {
-    const { lineHeight, lines } = state;
+    const { lineHeight } = state;
     const { scrollTop, scrollHeight, clientHeight } = this.node;
+    const lineCount = this.document.getLineCount();
 
     if (scrollHeight <= clientHeight) {
       state.firstVisibleLine = 0;
       state.lastVisibleLine = Math.min(
-        lines.length,
+        lineCount,
         Math.ceil(clientHeight / lineHeight)
       );
       return;
@@ -37,7 +37,7 @@ export default class ScrollContainer {
 
     state.firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight));
     state.lastVisibleLine = Math.min(
-      lines.length,
+      lineCount,
       Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight)
     );
   };

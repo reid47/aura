@@ -6,45 +6,50 @@ import TextContainer from './components/text-container';
 import TextOverlay from './components/text-overlay';
 import Wrapper from './components/wrapper';
 import SelectionOverlay from './components/selection-overlay';
+import Document from './document';
+import { initCustomEvents } from './custom-events';
 
 export default class Editor {
   constructor(root, options = {}) {
     this.options = options;
 
     this.state = {
-      lines: [],
-      lineStartIndexes: {},
-      cursorLine: 0,
-      cursorColumn: 0,
       firstVisibleLine: 0,
       lastVisibleLine: 200,
       lastScrollTop: 0,
       focused: false
     };
 
+    this.document = new Document(options);
+
     this.wrapper = new Wrapper({ options: this.options });
 
     this.textArea = new TextArea({
-      onInput: this.onInput,
-      onFocus: this.onTextAreaFocusChange.bind(true),
-      onBlur: this.onTextAreaFocusChange.bind(false),
-      drawSelectionOverlay: this.drawSelectionOverlay,
-      getState: this.getState,
-      options: this.options
+      onFocus: () => this.onTextAreaFocusChange(true),
+      onBlur: () => this.onTextAreaFocusChange(false),
+      options: this.options,
+      document: this.document
     });
 
     this.scrollContainer = new ScrollContainer({
       onScroll: this.onScroll,
-      options: this.options
+      options: this.options,
+      document: this.document
     });
 
     this.gutter = new Gutter({ options: this.options });
-    this.selectionOverlay = new SelectionOverlay({ options: this.options });
+    this.selectionOverlay = new SelectionOverlay({ document: this.document });
     this.textContainer = new TextContainer({ options: this.options });
 
     this.textOverlay = new TextOverlay({
       onMouseDown: this.onTextOverlayMouseDown,
+      document: this.document,
       options: this.options
+    });
+
+    initCustomEvents(root, {
+      textChange: this.drawTextOverlay,
+      cursorMove: this.drawSelectionOverlay
     });
 
     root.appendChild(
@@ -64,38 +69,23 @@ export default class Editor {
     this.setLineHeight(options.lineHeight || this.fontSize * 1.5);
     this.setIndentSize(options.indentSize || 2);
     this.setTabInsertsIndent(options.tabInsertsIndent || true);
-    this.setValue(options.initialValue || '');
     this.setDisableSyntaxHighlighting(
       options.disableSyntaxHighlighting || false
     );
+
+    this.drawTextOverlay();
   }
 
-  getState = () => this.state;
-
-  setValue = newValue => {
-    this.state.lines = newValue.split('\n');
-    let startIndex = 0;
-    this.state.lineStartIndexes = this.state.lines.map(line => {
-      const oldStartIndex = startIndex;
-      startIndex = line.length + startIndex + 1;
-      return oldStartIndex;
-    });
-
-    const contentHeight = this.state.lines.length * this.state.lineHeight;
+  drawTextOverlay = () => {
+    const contentHeight = this.document.getLineCount() * this.state.lineHeight;
     this.gutter.setHeight(contentHeight);
-    // this.selectionOverlay.setHeight(contentHeight);
     this.textContainer.setHeight(contentHeight);
     this.textOverlay.setHeight(contentHeight);
-
+    this.scrollContainer.calculateVisibleLines(this.state);
+    this.gutter.drawLineNumbers(this.state);
     this.scrollContainer.calculateVisibleLines(this.state);
     this.textOverlay.draw(this.state);
     this.drawSelectionOverlay();
-
-    const lineCount = this.state.lines.length;
-    if (this.state.lastLineCount !== lineCount) {
-      this.state.lastLineCount = lineCount;
-      this.gutter.drawLineNumbers(this.state);
-    }
   };
 
   setDisableSyntaxHighlighting = shouldDisable => {
@@ -150,32 +140,28 @@ export default class Editor {
     this.drawSelectionOverlay();
   };
 
-  onInput = evt => {
-    this.setValue(evt.target.value);
-    this.textArea.calculateCursorPosition(this.state);
-    this.drawSelectionOverlay();
-  };
-
   onTextOverlayMouseDown = evt => {
     const rect = evt.currentTarget.getBoundingClientRect();
     const offsetX = evt.clientX - rect.left - 8; // subtract padding
     const offsetY = evt.clientY - rect.top;
 
-    let clickedLine = 0;
-    while (clickedLine * this.state.lineHeight < offsetY) {
-      clickedLine++;
+    let newCursorLine = 0;
+    while (newCursorLine * this.state.lineHeight < offsetY) {
+      newCursorLine++;
     }
+    newCursorLine--;
 
-    let charIndex = this.state.lineStartIndexes[clickedLine - 1];
-    charIndex += Math.min(
-      this.state.lines[clickedLine - 1].length,
+    const newCursorColumn = Math.min(
+      this.document.getLine(newCursorLine).length,
       Math.round(offsetX / this.state.characterWidth)
     );
 
+    this.textArea.updateState(
+      this.document.setCursorPosition(newCursorLine, newCursorColumn)
+    );
+
     setTimeout(() => {
-      this.textArea.setSelection(charIndex);
       this.textArea.focus();
-      this.textArea.calculateCursorPosition(this.state);
       this.drawSelectionOverlay();
     }, 0);
   };

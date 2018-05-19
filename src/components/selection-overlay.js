@@ -1,6 +1,10 @@
 import { el } from '../dom';
 
 export default class SelectionOverlay {
+  constructor({ document }) {
+    this.document = document;
+  }
+
   init = () => {
     return el(
       'div.Aura-selection-overlay',
@@ -29,15 +33,17 @@ export default class SelectionOverlay {
   };
 
   draw = (state, scrollInfo) => {
+    this.activeLineNode.hidden = true;
+
     const {
       focused,
-      cursorLine,
-      cursorColumn,
       lineHeight,
       characterWidth,
       firstVisibleLine,
       lastVisibleLine
     } = state;
+
+    const { cursorLine, cursorColumn } = this.document.getCursorPosition();
 
     const { scrollLeft } = scrollInfo;
 
@@ -49,5 +55,6 @@ export default class SelectionOverlay {
     const columnOffset = cursorColumn * characterWidth - scrollLeft;
     this.activeLineNode.style.top = `${lineOffset}px`;
     this.cursorNode.style.transform = `translateX(${columnOffset}px)`;
+    this.activeLineNode.hidden = false;
   };
 }

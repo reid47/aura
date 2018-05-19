@@ -30,8 +30,6 @@ export default class Gutter {
       lastLineNumberWidth
     } = state;
 
-    console.log(firstVisibleLine, lastVisibleLine);
-
     let numbers = '';
 
     for (let line = firstVisibleLine; line < lastVisibleLine; line++) {

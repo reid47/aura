@@ -13,9 +13,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const editor = new Aura('#root', {
-        // hideLineNumbers: true,
-        // readOnly: true,
+      window.editor = new Aura('#root', {
         disableSyntaxHighlighting: true,
         lineHeight: 24,
         initialValue: document.querySelector('#sample').innerHTML.repeat(1),
