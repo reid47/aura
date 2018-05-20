@@ -8,7 +8,6 @@ export default class Renderer {
     this.session = session;
     this.options = options;
 
-    this.lineHeight = 24; //this.options.lineHeight; // TODO
     this.editorNode = null;
     this.scrollContainerNode = null;
     this.textViewNode = null;
@@ -56,8 +55,9 @@ export default class Renderer {
   };
 
   calculateTextHeight = () => {
+    const lineHeight = this.session.getSetting('lineHeight');
     const lineCount = this.document.getLineCount();
-    const newTextHeight = px(lineCount * this.lineHeight);
+    const newTextHeight = px(lineCount * lineHeight);
     if (newTextHeight === this.textHeight) return;
     this.textHeight = newTextHeight;
     this.textViewNode.style.height = newTextHeight;
@@ -68,31 +68,32 @@ export default class Renderer {
   calculateVisibleLines = () => {
     const { scrollTop, scrollHeight, clientHeight } = this.scrollContainerNode;
     const lineCount = this.document.getLineCount();
+    const lineHeight = this.session.getSetting('lineHeight');
 
     if (scrollHeight <= clientHeight) {
       const firstVisibleLine = 0;
       const lastVisibleLine = Math.min(
         lineCount,
-        Math.ceil(clientHeight / this.lineHeight)
+        Math.ceil(clientHeight / lineHeight)
       );
       return [firstVisibleLine, lastVisibleLine];
     }
 
     const firstVisibleLine = Math.max(
       0,
-      Math.floor(scrollTop / this.lineHeight) - this.options.lineOverscan
+      Math.floor(scrollTop / lineHeight) - this.options.lineOverscan
     );
     const lastVisibleLine = Math.min(
       lineCount,
-      Math.ceil(
-        (scrollTop + clientHeight + this.lineHeight) / this.lineHeight
-      ) + this.options.lineOverscan
+      Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight) +
+        this.options.lineOverscan
     );
 
     return [firstVisibleLine, lastVisibleLine];
   };
 
   drawVisibleLines = (firstVisibleLine, lastVisibleLine, scrollTop) => {
+    const lineHeight = this.session.getSetting('lineHeight');
     const lines = this.document.getLines();
 
     // An optimization: if the first and last visible lines are the same as
@@ -121,7 +122,7 @@ export default class Renderer {
       // Then, remove all DOM nodes for lines that don't have this value
       // (that is, all lines which come before this line, and are no longer
       // visible).
-      const firstVisibleTop = px(firstVisibleLine * this.lineHeight);
+      const firstVisibleTop = px(firstVisibleLine * lineHeight);
       while (
         this.textViewNode.firstChild &&
         this.textViewNode.firstChild.style.top !== firstVisibleTop
@@ -141,7 +142,7 @@ export default class Renderer {
           // ...if we don't have a DOM node at this index, create a new one
           lineNode = document.createElement('div');
           lineNode.className = 'Aura-line';
-          lineNode.style.top = px(line * this.lineHeight);
+          lineNode.style.top = px(line * lineHeight);
           lineNode.innerHTML = escape(text);
           this.textViewNode.appendChild(lineNode);
         } else {
@@ -158,7 +159,7 @@ export default class Renderer {
     const visibleLineHtml = [];
     for (let line = firstVisibleLine; line <= lastVisibleLine; line++) {
       const text = lines[line] || ' ';
-      const top = px(line * this.lineHeight);
+      const top = px(line * lineHeight);
       visibleLineHtml.push(
         `<div class="Aura-line" style="top: ${top}">${escape(text)}</div>`
       );
@@ -181,12 +182,13 @@ export default class Renderer {
       cursorLine >= firstVisibleLine &&
       cursorLine <= lastVisibleLine
     ) {
-      const { scrollLeft } = this.scrollContainerNode;
+      const lineHeight = this.session.getSetting('lineHeight');
       const characterWidth = this.session.getCharacterWidth();
-      const lineOffset = cursorLine * this.lineHeight;
+      const { scrollLeft } = this.scrollContainerNode;
+
       const columnOffset = cursorCol * characterWidth - scrollLeft;
-      this.activeLineNode.style.height = px(this.lineHeight);
-      this.activeLineNode.style.top = px(lineOffset);
+      this.activeLineNode.style.height = px(lineHeight);
+      this.activeLineNode.style.top = px(cursorLine * lineHeight);
       this.cursorNode.style.transform = `translateX(${px(columnOffset)})`;
       this.activeLineNode.hidden = false;
     }
