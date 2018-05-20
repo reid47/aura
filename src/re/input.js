@@ -1,4 +1,5 @@
-import { keyCode, keyCodes } from '../keys';
+import { keyCode, keyCodes, ctrl } from '../keys';
+import { dispatchCursorMove, dispatchTextChange } from '../custom-events';
 
 /**
  * Wraps the inner `textarea` element that receives the input and
@@ -42,25 +43,19 @@ export default class Input {
       case keyCodes.RIGHT:
       case keyCodes.UP:
       case keyCodes.DOWN:
+      case keyCodes.HOME:
+      case keyCodes.END:
         evt.preventDefault();
-        this.notifyCursorMove(evtKeyCode);
+        this.notifyCursorMove(evtKeyCode, ctrl(evt));
         return;
     }
   };
 
   notifyTextChange = (text, cursorColumn) => {
-    this.root.dispatchEvent(
-      new CustomEvent('textChange', {
-        detail: { text, cursorColumn }
-      })
-    );
+    dispatchTextChange(this.root, { text, cursorColumn });
   };
 
-  notifyCursorMove = direction => {
-    this.root.dispatchEvent(
-      new CustomEvent('cursorMove', {
-        detail: { direction }
-      })
-    );
+  notifyCursorMove = (direction, ctrlKey) => {
+    dispatchCursorMove(this.root, { direction, ctrlKey });
   };
 }

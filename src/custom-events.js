@@ -1,8 +1,7 @@
-let root;
-
 (() => {
   if (typeof window.CustomEvent === 'function') return;
 
+  // Polyfill for browsers that do not support CustomEvents
   function CustomEvent(event, params) {
     params = params || { detail: undefined };
     const evt = document.createEvent('CustomEvent');
@@ -14,18 +13,14 @@ let root;
   window.CustomEvent = CustomEvent;
 })();
 
-export const initCustomEvents = (newRoot, evtHandlers = {}) => {
-  root = newRoot;
-
-  Object.keys(evtHandlers).forEach(evtType => {
-    root.addEventListener(evtType, evtHandlers[evtType]);
-  });
-};
-
-export const dispatchCursorMove = detail => {
+export const dispatchCursorMove = (root, detail) => {
   root.dispatchEvent(new CustomEvent('cursorMove', { detail }));
 };
 
-export const dispatchTextChange = detail => {
+export const dispatchTextChange = (root, detail) => {
   root.dispatchEvent(new CustomEvent('textChange', { detail }));
+};
+
+export const dispatchSelectionChange = (root, detail) => {
+  root.dispatchEvent(new CustomEvent('selectionChange', { detail }));
 };

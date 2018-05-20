@@ -22,7 +22,7 @@ export default class Session {
     this.document.updateLine(this.selection.cursorLine, text);
   };
 
-  onCursorMove = ({ detail: { direction } }) => {
+  onCursorMove = ({ detail: { direction, ctrlKey } }) => {
     switch (direction) {
       case keyCodes.UP:
         this.selection.moveCursorLineUp();
@@ -35,6 +35,16 @@ export default class Session {
         return;
       case keyCodes.RIGHT:
         this.selection.moveCursorColForward();
+        return;
+      case keyCodes.HOME:
+        ctrlKey
+          ? this.selection.moveCursorDocumentStart()
+          : this.selection.moveCursorLineStart();
+        return;
+      case keyCodes.END:
+        ctrlKey
+          ? this.selection.moveCursorDocumentEnd()
+          : this.selection.moveCursorLineEnd();
         return;
     }
   };

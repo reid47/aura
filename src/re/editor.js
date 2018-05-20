@@ -6,7 +6,8 @@ import Renderer from './renderer';
  * Represents a single Aura instance.
  *
  * An `Editor` has an associated `Document`, where its text content
- * is stored, and `Input`, which handles changes to its text content.
+ * is stored, a `Session`, which keeps track of the editor state, and
+ * a `Renderer`, which draws visible lines to the screen.
  */
 export default class Editor {
   constructor(root, options) {
