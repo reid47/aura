@@ -37,34 +37,34 @@ export default class Session {
     return this.characterWidth;
   };
 
-  onTextChange = ({ detail: { text } }) => {
+  onTextChange = ({ detail: { text, cursorCol } }) => {
     this.document.updateLine(this.selection.cursorLine, text);
+    this.selection.setCursorCol(cursorCol);
   };
 
   onCursorMove = ({ detail: { direction, ctrlKey } }) => {
+    if (ctrlKey) {
+      switch (direction) {
+        case keyCodes.HOME:
+          return this.selection.moveCursorDocumentStart();
+        case keyCodes.END:
+          return this.selection.moveCursorDocumentEnd();
+      }
+    }
+
     switch (direction) {
       case keyCodes.UP:
-        this.selection.moveCursorLineUp();
-        return;
+        return this.selection.moveCursorLineUp();
       case keyCodes.DOWN:
-        this.selection.moveCursorLineDown();
-        return;
+        return this.selection.moveCursorLineDown();
       case keyCodes.LEFT:
-        this.selection.moveCursorColBackward();
-        return;
+        return this.selection.moveCursorColBackward();
       case keyCodes.RIGHT:
-        this.selection.moveCursorColForward();
-        return;
+        return this.selection.moveCursorColForward();
       case keyCodes.HOME:
-        ctrlKey
-          ? this.selection.moveCursorDocumentStart()
-          : this.selection.moveCursorLineStart();
-        return;
+        return this.selection.moveCursorLineStart();
       case keyCodes.END:
-        ctrlKey
-          ? this.selection.moveCursorDocumentEnd()
-          : this.selection.moveCursorLineEnd();
-        return;
+        return this.selection.moveCursorLineEnd();
     }
   };
 

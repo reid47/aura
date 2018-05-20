@@ -24,6 +24,14 @@ export default class Selection {
   });
 
   /**
+   * Sets the current cursor column
+   */
+  setCursorCol = newCursorCol => {
+    this.cursorCol = newCursorCol;
+    this.notifySelectionChange();
+  };
+
+  /**
    * Moves cursor one line up, preserving cursor column when possible.
    */
   moveCursorLineUp = () => {

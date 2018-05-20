@@ -51,8 +51,8 @@ export default class Input {
     }
   };
 
-  notifyTextChange = (text, cursorColumn) => {
-    dispatchTextChange(this.root, { text, cursorColumn });
+  notifyTextChange = (text, cursorCol) => {
+    dispatchTextChange(this.root, { text, cursorCol });
   };
 
   notifyCursorMove = (direction, ctrlKey) => {
