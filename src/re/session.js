@@ -14,7 +14,7 @@ export default class Session {
     this.document.setValue(this.options.initialValue || '');
     this.input.setBuffer(this.document.getLine(this.selection.cursorLine));
 
-    this.root.addEventListener('textChange', this.onTextChange);
+    this.root.addEventListener('lineTextChange', this.onLineTextChange);
     this.root.addEventListener('cursorMove', this.onCursorMove);
     this.root.addEventListener('selectionChange', this.onSelectionChange);
   }
@@ -37,7 +37,7 @@ export default class Session {
     return this.characterWidth;
   };
 
-  onTextChange = ({ detail: { text, cursorCol } }) => {
+  onLineTextChange = ({ detail: { text, cursorCol } }) => {
     this.document.updateLine(this.selection.cursorLine, text);
     this.selection.setCursorCol(cursorCol);
   };

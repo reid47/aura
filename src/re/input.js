@@ -1,5 +1,5 @@
 import { keyCode, keyCodes, ctrl } from '../keys';
-import { dispatchCursorMove, dispatchTextChange } from '../custom-events';
+import { dispatchCursorMove, dispatchLineTextChange } from '../custom-events';
 
 /**
  * Wraps the inner `textarea` element that receives the input and
@@ -36,7 +36,7 @@ export default class Input {
   };
 
   onInput = evt => {
-    this.notifyTextChange(evt.target.value, evt.target.selectionStart);
+    this.notifyLineTextChange(evt.target.value, evt.target.selectionStart);
   };
 
   onKeyDown = evt => {
@@ -55,8 +55,8 @@ export default class Input {
     }
   };
 
-  notifyTextChange = (text, cursorCol) => {
-    dispatchTextChange(this.root, { text, cursorCol });
+  notifyLineTextChange = (text, cursorCol) => {
+    dispatchLineTextChange(this.root, { text, cursorCol });
   };
 
   notifyCursorMove = (direction, ctrlKey) => {
