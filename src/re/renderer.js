@@ -209,6 +209,8 @@ export default class Renderer {
       this.activeLineNode.style.height = px(lineHeight);
       this.activeLineNode.style.top = px(cursorLine * lineHeight);
       this.cursorNode.style.transform = `translateX(${px(columnOffset)})`;
+      this.cursorNode.style.animation = 'none';
+      setTimeout(() => (this.cursorNode.style.animation = null), 0);
       this.activeLineNode.hidden = false;
     }
   };
