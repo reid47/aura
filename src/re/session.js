@@ -1,6 +1,7 @@
 import Selection from './selection';
 import Input from './input';
 import { keyCodes } from '../keys';
+import { measureCharacterWidth } from '../helpers/font-helper';
 
 export default class Session {
   constructor(root, document, options) {
@@ -17,6 +18,20 @@ export default class Session {
     this.root.addEventListener('cursorMove', this.onCursorMove);
     this.root.addEventListener('selectionChange', this.onSelectionChange);
   }
+
+  getCharacterWidth = () => {
+    const { fontSize, fontFamily } = this.options;
+    if (
+      this.savedFontSize !== fontSize ||
+      this.savedFontFamily !== fontFamily
+    ) {
+      this.characterWidth = measureCharacterWidth(fontFamily, fontSize);
+      this.savedFontSize = fontSize;
+      this.savedFontFamily = fontFamily;
+    }
+
+    return this.characterWidth;
+  };
 
   onTextChange = ({ detail: { text } }) => {
     this.document.updateLine(this.selection.cursorLine, text);

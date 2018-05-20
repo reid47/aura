@@ -51,6 +51,16 @@
   cursor: text;
 }
 
+.Aura-overlays {
+  width: 100%;
+  position: absolute;
+}
+
+.Aura-selection-overlay {
+  width: 100%;
+  position: relative;
+}
+
 .Aura-gutter {
   border-right: 1px solid var(--color-fg);
   font-size: 1em;
@@ -75,10 +85,6 @@
 .Aura-textarea-wrapper {
   cursor: text;
   flex-grow: 1;
-}
-
-.Aura-selection-overlay {
-  position: relative;
 }
 
 .Aura-active-line {

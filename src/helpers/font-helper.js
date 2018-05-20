@@ -1,7 +1,7 @@
 import { el } from '../util';
 
 export const measureCharacterWidth = (fontFamily, fontSize) => {
-  const temp = el('div');
+  const temp = document.createElement('div');
   temp.style.fontFamily = fontFamily;
   temp.style.fontSize = fontSize;
   temp.style.position = 'absolute';

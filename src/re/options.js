@@ -1,5 +1,10 @@
 const defaultOptions = {
   /**
+   * Editor font family
+   */
+  fontFamily: 'monospace',
+
+  /**
    * Editor font size
    */
   fontSize: 16,

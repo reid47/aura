@@ -21,7 +21,24 @@ export default class Renderer {
       el(
         'div.Aura-scroll-container',
         { ref: node => (this.scrollContainerNode = node) },
-        el('div.Aura-text-view', { ref: node => (this.textViewNode = node) })
+        el(
+          'div.Aura-text-container',
+          {},
+          el(
+            'div.Aura-overlays',
+            { ref: node => (this.overlaysNode = node) },
+            el(
+              'div.Aura-selection-overlay',
+              { ref: node => (this.selectionOverlayNode = node) },
+              el(
+                'div.Aura-active-line',
+                { ref: node => (this.activeLineNode = node) },
+                el('div.Aura-cursor', { ref: node => (this.cursorNode = node) })
+              )
+            )
+          ),
+          el('div.Aura-text-view', { ref: node => (this.textViewNode = node) })
+        )
       )
     );
 
@@ -29,7 +46,6 @@ export default class Renderer {
     this.root.classList.add('Aura-input');
     els.insertBefore(this.root, els.firstChild);
     this.scrollContainerNode.addEventListener('scroll', this.render);
-
     this.render();
   };
 
@@ -39,6 +55,8 @@ export default class Renderer {
     if (newTextHeight === this.textHeight) return;
     this.textHeight = newTextHeight;
     this.textViewNode.style.height = `${newTextHeight}px`;
+    this.overlaysNode.style.height = `${newTextHeight}px`;
+    this.selectionOverlayNode.style.height = `${newTextHeight}px`;
   };
 
   calculateVisibleLines = () => {
@@ -143,12 +161,38 @@ export default class Renderer {
     this.textViewNode.innerHTML = visibleLineHtml.join('');
   };
 
+  drawSelection = (firstVisibleLine, lastVisibleLine) => {
+    this.activeLineNode.hidden = true;
+
+    const {
+      cursorLine,
+      cursorCol,
+      selectionActive
+    } = this.session.selection.getState();
+
+    if (
+      !selectionActive &&
+      cursorLine >= firstVisibleLine &&
+      cursorLine <= lastVisibleLine
+    ) {
+      const { scrollLeft } = this.scrollContainerNode;
+      const characterWidth = this.session.getCharacterWidth();
+      const lineOffset = cursorLine * this.lineHeight;
+      const columnOffset = cursorCol * characterWidth - scrollLeft;
+      this.activeLineNode.style.height = `${this.lineHeight}px`;
+      this.activeLineNode.style.top = `${lineOffset}px`;
+      this.cursorNode.style.transform = `translateX(${columnOffset}px)`;
+      this.activeLineNode.hidden = false;
+    }
+  };
+
   render = () => {
     const { scrollTop } = this.scrollContainerNode;
 
     this.calculateTextHeight();
     const [firstVisibleLine, lastVisibleLine] = this.calculateVisibleLines();
     this.drawVisibleLines(firstVisibleLine, lastVisibleLine, scrollTop);
+    this.drawSelection(firstVisibleLine, lastVisibleLine);
 
     this.savedScrollTop = scrollTop;
     this.savedFirstVisibleLine = firstVisibleLine;
