@@ -54,6 +54,21 @@ export default class Renderer {
     this.render();
   };
 
+  scrollIntoView = selection => {
+    const { cursorLine } = selection.getState();
+    const { lineOverscan } = this.options;
+
+    if (cursorLine < this.savedFirstVisibleLine + lineOverscan) {
+      const lineHeight = this.session.getSetting('lineHeight');
+      this.scrollContainerNode.scrollTop = (cursorLine - 2) * lineHeight;
+    } else if (cursorLine > this.savedLastVisibleLine - lineOverscan) {
+      const lineHeight = this.session.getSetting('lineHeight');
+      const { clientHeight } = this.scrollContainerNode;
+      this.scrollContainerNode.scrollTop =
+        (cursorLine + 2) * lineHeight - clientHeight;
+    }
+  };
+
   calculateTextHeight = () => {
     const lineHeight = this.session.getSetting('lineHeight');
     const lineCount = this.document.getLineCount();

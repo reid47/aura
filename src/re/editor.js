@@ -24,7 +24,12 @@ export default class Editor {
     );
 
     this.renderer.mount();
-    this.root.addEventListener('textChange', this.renderer.render);
+    this.root.addEventListener('textChange', this.onTextChange);
     this.root.addEventListener('selectionChange', this.renderer.render);
   }
+
+  onTextChange = () => {
+    this.renderer.scrollIntoView(this.session.selection);
+    this.renderer.render();
+  };
 }
