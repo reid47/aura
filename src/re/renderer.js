@@ -8,7 +8,7 @@ export default class Renderer {
     this.session = session;
     this.options = options;
 
-    this.lineHeight = 24; // TODO
+    this.lineHeight = 24; //this.options.lineHeight; // TODO
     this.editorNode = null;
     this.scrollContainerNode = null;
     this.textViewNode = null;

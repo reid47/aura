@@ -46,7 +46,6 @@
   font-family: inherit;
   line-height: inherit;
   white-space: pre;
-  overflow: hidden;
   user-select: none;
   position: relative;
   cursor: text;
@@ -55,7 +54,6 @@
 .Aura-gutter {
   border-right: 1px solid var(--color-fg);
   font-size: 1em;
-  /* padding: 0 8px; */
   user-select: none;
   display: inline-block;
   pointer-events: none;

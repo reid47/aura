@@ -14,6 +14,15 @@ export default class Selection {
   }
 
   /**
+   * Gets the current cursor/selection info
+   */
+  getState = () => ({
+    cursorLine: this.cursorLine,
+    cursorCol: this.cursorCol,
+    selectionActive: false
+  });
+
+  /**
    * Moves cursor one line up, preserving cursor column when possible.
    */
   moveCursorLineUp = () => {

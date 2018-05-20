@@ -23,7 +23,7 @@ const mainEntry = {
     name: 'Aura'
   },
   watch: {
-    chokidar: true,
+    chokidar: false,
     include: 'src/**'
   },
   plugins: [
