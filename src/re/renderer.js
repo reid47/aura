@@ -55,7 +55,7 @@ export default class Renderer {
   };
 
   scrollIntoView = selection => {
-    const { cursorLine } = selection.getState();
+    const { cursorLine } = selection;
     const { lineOverscan } = this.options;
 
     if (cursorLine < this.savedFirstVisibleLine + lineOverscan) {
@@ -84,24 +84,25 @@ export default class Renderer {
     const { scrollTop, scrollHeight, clientHeight } = this.scrollContainerNode;
     const lineCount = this.document.getLineCount();
     const lineHeight = this.session.getSetting('lineHeight');
+    const { lineOverscan } = this.options;
 
     if (scrollHeight <= clientHeight) {
       const firstVisibleLine = 0;
       const lastVisibleLine = Math.min(
         lineCount,
-        Math.ceil(clientHeight / lineHeight)
+        Math.ceil(clientHeight / lineHeight) + lineOverscan
       );
       return [firstVisibleLine, lastVisibleLine];
     }
 
     const firstVisibleLine = Math.max(
       0,
-      Math.floor(scrollTop / lineHeight) - this.options.lineOverscan
+      Math.floor(scrollTop / lineHeight) - lineOverscan
     );
     const lastVisibleLine = Math.min(
       lineCount,
-      Math.ceil((scrollTop + clientHeight + lineHeight) / lineHeight) +
-        this.options.lineOverscan
+      Math.ceil((scrollTop + clientHeight - lineHeight) / lineHeight) +
+        lineOverscan
     );
 
     return [firstVisibleLine, lastVisibleLine];
