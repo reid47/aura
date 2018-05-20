@@ -51,6 +51,10 @@ export default class Renderer {
     this.root.classList.add('Aura-input');
     els.insertBefore(this.root, els.firstChild);
     this.scrollContainerNode.addEventListener('scroll', this.render);
+    this.scrollContainerNode.addEventListener(
+      'mousedown',
+      this.session.selection.onMouseDown
+    );
     this.render();
   };
 
@@ -200,9 +204,8 @@ export default class Renderer {
     ) {
       const lineHeight = this.session.getSetting('lineHeight');
       const characterWidth = this.session.getCharacterWidth();
-      const { scrollLeft } = this.scrollContainerNode;
 
-      const columnOffset = cursorCol * characterWidth - scrollLeft;
+      const columnOffset = cursorCol * characterWidth;
       this.activeLineNode.style.height = px(lineHeight);
       this.activeLineNode.style.top = px(cursorLine * lineHeight);
       this.cursorNode.style.transform = `translateX(${px(columnOffset)})`;

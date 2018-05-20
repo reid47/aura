@@ -9,7 +9,7 @@ export default class Session {
     this.document = document;
     this.options = options;
     this.input = new Input(this.root, this.document, this.options);
-    this.selection = new Selection(this.root, this.document);
+    this.selection = new Selection(this.root, this, this.document);
 
     this.document.setValue(this.options.initialValue || '');
     this.input.setBuffer(this.document.getLine(this.selection.cursorLine));

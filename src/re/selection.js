@@ -5,8 +5,9 @@ import { dispatchSelectionChange } from '../custom-events';
  * within a `Document`.
  */
 export default class Selection {
-  constructor(root, document) {
+  constructor(root, session, document) {
     this.root = root;
+    this.session = session;
     this.document = document;
 
     this.cursorLine = 0;
@@ -39,8 +40,9 @@ export default class Selection {
       this.cursorLine--;
       const lineLength = this.document.getLineLength(this.cursorLine);
       this.cursorCol = Math.min(this.savedCursorCol, lineLength);
-      this.notifySelectionChange();
     }
+
+    this.notifySelectionChange();
   };
 
   /**
@@ -51,8 +53,9 @@ export default class Selection {
       this.cursorLine++;
       const lineLength = this.document.getLineLength(this.cursorLine);
       this.cursorCol = Math.min(this.savedCursorCol, lineLength);
-      this.notifySelectionChange();
     }
+
+    this.notifySelectionChange();
   };
 
   /**
@@ -62,17 +65,13 @@ export default class Selection {
     if (this.cursorCol > 0) {
       this.cursorCol--;
       this.savedCursorCol = this.cursorCol;
-      this.notifySelectionChange();
-      return;
-    }
-
-    if (this.cursorLine > 0) {
+    } else if (this.cursorLine > 0) {
       this.cursorCol = this.document.getLineLength(this.cursorLine - 1);
       this.cursorLine--;
       this.savedCursorCol = this.cursorCol;
-      this.notifySelectionChange();
-      return;
     }
+
+    this.notifySelectionChange();
   };
 
   /**
@@ -82,17 +81,13 @@ export default class Selection {
     if (this.cursorCol < this.document.getLineLength(this.cursorLine)) {
       this.cursorCol++;
       this.savedCursorCol = this.cursorCol;
-      this.notifySelectionChange();
-      return;
-    }
-
-    if (this.cursorLine < this.document.getLineCount() - 1) {
+    } else if (this.cursorLine < this.document.getLineCount() - 1) {
       this.cursorLine++;
       this.cursorCol = 0;
       this.savedCursorCol = this.cursorCol;
-      this.notifySelectionChange();
-      return;
     }
+
+    this.notifySelectionChange();
   };
 
   /**
@@ -141,5 +136,33 @@ export default class Selection {
       cursorLine: this.cursorLine,
       cursorCol: this.cursorCol
     });
+  };
+
+  /**
+   * Handles mousedown events on the scroll container and updates the selection
+   * accordingly.
+   */
+  onMouseDown = evt => {
+    const characterWidth = this.session.getCharacterWidth();
+    const lineHeight = this.session.getSetting('lineHeight');
+    const rect = evt.currentTarget.getBoundingClientRect();
+    const offsetX = evt.clientX + evt.currentTarget.scrollLeft - rect.left;
+    const offsetY = evt.clientY + evt.currentTarget.scrollTop - rect.top;
+
+    // TODO: binary search?
+    let newCursorLine = 0;
+    while (newCursorLine * lineHeight < offsetY) {
+      newCursorLine++;
+    }
+    newCursorLine--;
+
+    const newCursorCol = Math.min(
+      this.document.getLineLength(newCursorLine),
+      Math.round(offsetX / characterWidth)
+    );
+
+    this.cursorLine = newCursorLine;
+    this.cursorCol = newCursorCol;
+    this.notifySelectionChange();
   };
 }

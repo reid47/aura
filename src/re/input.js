@@ -23,6 +23,10 @@ export default class Input {
     this.root.addEventListener('keydown', this.onKeyDown);
   }
 
+  focus = () => {
+    setTimeout(() => this.root.focus(), 0);
+  };
+
   setBuffer = newText => {
     this.root.value = newText;
   };

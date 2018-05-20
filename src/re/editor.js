@@ -34,6 +34,7 @@ export default class Editor {
   };
 
   onSelectionChange = () => {
+    this.session.input.focus();
     this.renderer.scrollIntoView(this.session.selection);
     this.renderer.render();
   };
