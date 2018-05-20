@@ -1,5 +1,5 @@
 import { el } from '../dom';
-import { escape } from '../util';
+import { escape, px } from '../util';
 
 export default class Renderer {
   constructor(root, document, session, options) {
@@ -17,7 +17,13 @@ export default class Renderer {
   mount = () => {
     const els = el(
       'div.Aura-editor',
-      { ref: node => (this.editorNode = node) },
+      {
+        ref: node => (this.editorNode = node),
+        style: {
+          fontSize: px(this.session.getSetting('fontSize')),
+          lineHeight: px(this.session.getSetting('lineHeight'))
+        }
+      },
       el(
         'div.Aura-scroll-container',
         { ref: node => (this.scrollContainerNode = node) },
@@ -51,12 +57,12 @@ export default class Renderer {
 
   calculateTextHeight = () => {
     const lineCount = this.document.getLineCount();
-    const newTextHeight = lineCount * this.lineHeight;
+    const newTextHeight = px(lineCount * this.lineHeight);
     if (newTextHeight === this.textHeight) return;
     this.textHeight = newTextHeight;
-    this.textViewNode.style.height = `${newTextHeight}px`;
-    this.overlaysNode.style.height = `${newTextHeight}px`;
-    this.selectionOverlayNode.style.height = `${newTextHeight}px`;
+    this.textViewNode.style.height = newTextHeight;
+    this.overlaysNode.style.height = newTextHeight;
+    this.selectionOverlayNode.style.height = newTextHeight;
   };
 
   calculateVisibleLines = () => {
@@ -115,7 +121,7 @@ export default class Renderer {
       // Then, remove all DOM nodes for lines that don't have this value
       // (that is, all lines which come before this line, and are no longer
       // visible).
-      const firstVisibleTop = `${firstVisibleLine * this.lineHeight}px`;
+      const firstVisibleTop = px(firstVisibleLine * this.lineHeight);
       while (
         this.textViewNode.firstChild &&
         this.textViewNode.firstChild.style.top !== firstVisibleTop
@@ -135,7 +141,7 @@ export default class Renderer {
           // ...if we don't have a DOM node at this index, create a new one
           lineNode = document.createElement('div');
           lineNode.className = 'Aura-line';
-          lineNode.style.top = `${line * this.lineHeight}px`;
+          lineNode.style.top = px(line * this.lineHeight);
           lineNode.innerHTML = escape(text);
           this.textViewNode.appendChild(lineNode);
         } else {
@@ -152,9 +158,9 @@ export default class Renderer {
     const visibleLineHtml = [];
     for (let line = firstVisibleLine; line <= lastVisibleLine; line++) {
       const text = lines[line] || ' ';
-      const top = line * this.lineHeight;
+      const top = px(line * this.lineHeight);
       visibleLineHtml.push(
-        `<div class="Aura-line" style="top: ${top}px">${escape(text)}</div>`
+        `<div class="Aura-line" style="top: ${top}">${escape(text)}</div>`
       );
     }
 
@@ -179,9 +185,9 @@ export default class Renderer {
       const characterWidth = this.session.getCharacterWidth();
       const lineOffset = cursorLine * this.lineHeight;
       const columnOffset = cursorCol * characterWidth - scrollLeft;
-      this.activeLineNode.style.height = `${this.lineHeight}px`;
-      this.activeLineNode.style.top = `${lineOffset}px`;
-      this.cursorNode.style.transform = `translateX(${columnOffset}px)`;
+      this.activeLineNode.style.height = px(this.lineHeight);
+      this.activeLineNode.style.top = px(lineOffset);
+      this.cursorNode.style.transform = `translateX(${px(columnOffset)})`;
       this.activeLineNode.hidden = false;
     }
   };

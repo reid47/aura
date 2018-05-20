@@ -74,3 +74,5 @@ export const escape = text => {
   const replaced = text.replace(/[&<>"'`=/]/g, c => htmlEntities[c]);
   return (escapeCache[text] = replaced);
 };
+
+export const px = str => str + 'px';

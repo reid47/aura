@@ -19,6 +19,10 @@ export default class Session {
     this.root.addEventListener('selectionChange', this.onSelectionChange);
   }
 
+  getSetting = settingName => {
+    return this.options[settingName];
+  };
+
   getCharacterWidth = () => {
     const { fontSize, fontFamily } = this.options;
     if (

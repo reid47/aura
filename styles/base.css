@@ -41,6 +41,11 @@
   display: flex;
 }
 
+.Aura-text-container {
+  width: 100%;
+  position: relative;
+}
+
 .Aura-text-view {
   width: 100%;
   font-family: inherit;

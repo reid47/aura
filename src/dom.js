@@ -10,14 +10,6 @@ export const el = (selector, props = {}, ...children) => {
       return;
     }
 
-    if (key === 'on') {
-      Object.keys(props[key]).forEach(eventKey => {
-        elt.addEventListener(eventKey, props[key][eventKey]);
-      });
-
-      return;
-    }
-
     if (key === 'style') {
       Object.keys(props[key]).forEach(styleKey => {
         elt.style[styleKey] = props[key][styleKey];
