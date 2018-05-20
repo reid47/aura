@@ -14,30 +14,42 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  font-family: monospace;
 }
 
 .Aura-editor * {
   box-sizing: border-box;
 }
 
-.Aura-toolbar {
-  flex-grow: 0;
-  background: var(--color-fg);
-  padding: 0;
-}
-
-.Aura-button {
-  background: transparent;
+.Aura-input {
+  display: block;
+  position: absolute;
+  height: 32px;
+  opacity: 0;
   border: none;
-  color: var(--color-bg);
-  padding: 8px;
-  cursor: pointer;
+  white-space: nowrap;
+  overflow: auto;
+
+  /* temporary: */
+  opacity: 1;
 }
 
 .Aura-scroll-container {
   flex-grow: 1;
+  font-family: inherit;
   overflow: auto;
   display: flex;
+}
+
+.Aura-text-view {
+  width: 100%;
+  font-family: inherit;
+  line-height: inherit;
+  white-space: pre;
+  overflow: hidden;
+  user-select: none;
+  position: relative;
+  cursor: text;
 }
 
 .Aura-gutter {
@@ -129,31 +141,8 @@
   display: inline-block;
 }
 
-.Aura-text-overlay {
-  font-family: var(--textarea-font);
-  line-height: inherit;
-  white-space: pre;
-  overflow: hidden;
-  user-select: none;
-  position: relative;
-}
-
 .Aura-line {
   position: absolute;
-}
-
-.Aura-textarea {
-  display: block;
-  position: absolute;
-  height: 120px;
-  opacity: 0;
-  border: none;
-  white-space: nowrap;
-  overflow: auto;
-
-  /* temporary: */
-  opacity: 1;
-  position: relative;
 }
 
 .Aura-token.keyword {
@@ -166,48 +155,4 @@
 
 .Aura-token.string {
   color: rgb(19, 74, 255);
-}
-
-.Aura-settings {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  font-family: sans-serif;
-  font-size: 1em;
-}
-
-.Aura-settings-dialog {
-  position: fixed;
-  width: calc(100% - 64px);
-  height: calc(100% - 64px);
-  left: 32px;
-  top: 32px;
-  background-color: var(--color-bg);
-}
-
-.Aura-settings-input-label {
-  width: 60%;
-  margin: 0 auto;
-  display: block;
-  text-align: right;
-}
-
-.Aura-settings-input {
-  width: 80px;
-  display: inline-block;
-  padding: 8px;
-  font-size: inherit;
-}
-
-.Aura-settings-close-button {
-  background: transparent;
-  border: none;
-  position: absolute;
-  right: 16px;
-  top: 16px;
-  font-size: 32px;
-  height: 40px;
-  width: 40px;
-  cursor: pointer;
 }

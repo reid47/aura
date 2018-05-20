@@ -18,6 +18,11 @@ export default class Document {
   };
 
   /**
+   * Gets all lines in document.
+   */
+  getLines = () => this.lines;
+
+  /**
    * Gets the string value of the line at `lineIndex`.
    */
   getLine = lineIndex => this.lines[lineIndex];

@@ -1,4 +1,4 @@
-export const el = (selector, props = {}, children) => {
+export const el = (selector, props = {}, ...children) => {
   const [type, ...classNames] = selector.split('.');
   const elt = document.createElement(type);
   classNames.forEach(cn => elt.classList.add(cn));

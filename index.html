@@ -16,7 +16,7 @@
       window.editor = new Aura('#root', {
         disableSyntaxHighlighting: true,
         lineHeight: 24,
-        initialValue: document.querySelector('#sample').innerHTML.repeat(1),
+        initialValue: document.querySelector('#sample').innerHTML.repeat(5),
         debug: true
       });
     });
@@ -34,7 +34,7 @@ const closingBraces = str => {
 
 const selectorCache = {};
 const joinNestedSelectors = (topLevelSelector, newSelector) => {
-  const cacheKey = `${topLevelSelector}|${parentSelector}|${newSelector}`;
+  const cacheKey = `${topLevelSelector}|${parentSelector}|${newSelector}`; // This is an extra long line to make it scroll
   const cached = selectorCache[cacheKey];
   if (cached) return cached;
 

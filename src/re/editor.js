@@ -1,6 +1,7 @@
 import Document from './document';
 import Session from './session';
 import Renderer from './renderer';
+import mergeWithDefaultOptions from './options';
 
 /**
  * Represents a single Aura instance.
@@ -12,9 +13,17 @@ import Renderer from './renderer';
 export default class Editor {
   constructor(root, options) {
     this.root = root;
-    this.options = options;
+    this.options = mergeWithDefaultOptions(options);
     this.document = new Document(this.options);
     this.session = new Session(this.root, this.document, this.options);
-    this.renderer = new Renderer(this.options);
+    this.renderer = new Renderer(
+      this.root,
+      this.document,
+      this.session,
+      this.options
+    );
+
+    this.renderer.mount();
+    this.root.addEventListener('textChange', () => this.renderer.render());
   }
 }
