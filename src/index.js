@@ -1,4 +1,4 @@
-import Editor from './editor';
+import Editor from './re/editor';
 
 export default function(root, options = {}) {
   root = typeof root === 'string' ? document.querySelector(root) : root;
@@ -7,8 +7,8 @@ export default function(root, options = {}) {
     throw new Error('Aura: failed to initialize: could not find root node.');
   }
 
-  if (!(root instanceof Element)) {
-    throw new Error('Aura: root node must be a valid DOM element.');
+  if (!(root instanceof Element && root.tagName === 'TEXTAREA')) {
+    throw new Error('Aura: root element must be a valid textarea in the DOM.');
   }
 
   return new Editor(root, options);
