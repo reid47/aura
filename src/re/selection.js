@@ -1,8 +1,8 @@
 import { dispatchSelectionChange } from '../custom-events';
 
 const whitespaceRe = /^\s/;
-const wordSepRe = /^[.,!?$/_\\\-=+*'";()[\]{}|`~<>@#%^&]/;
-const wordSepOrWhitespaceRe = /^[.,!?$/_\\\-=+*'";()[\]{}|`~<>@#%^&\s]/;
+const wordSepRe = /^[.,!?$/_\\\-=+*'";:()[\]{}|`~<>@#%^&]/;
+const wordSepOrWhitespaceRe = /^[.,!?$/_\\\-=+*'";:()[\]{}|`~<>@#%^&\s]/;
 
 /**
  * Represents the position of the cursor and/or current selection
