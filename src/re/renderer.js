@@ -73,15 +73,26 @@ export default class Renderer {
     }
   };
 
-  calculateTextHeight = () => {
+  calculateTextDimensions = () => {
+    const characterWidth = this.session.getCharacterWidth();
     const lineHeight = this.session.getSetting('lineHeight');
     const lineCount = this.document.getLineCount();
+    const longestLineLength = this.document.getLongestLineLength();
+
     const newTextHeight = px(lineCount * lineHeight);
-    if (newTextHeight === this.textHeight) return;
-    this.textHeight = newTextHeight;
-    this.textViewNode.style.height = newTextHeight;
-    this.overlaysNode.style.height = newTextHeight;
-    this.selectionOverlayNode.style.height = newTextHeight;
+    if (newTextHeight !== this.textHeight) {
+      this.textHeight = newTextHeight;
+      this.textViewNode.style.height = newTextHeight;
+      this.overlaysNode.style.height = newTextHeight;
+      this.selectionOverlayNode.style.height = newTextHeight;
+    }
+
+    const newTextWidth = px(longestLineLength * characterWidth);
+    if (newTextWidth !== this.textWidth) {
+      this.textWidth = newTextWidth;
+      this.textViewNode.style.width = newTextWidth;
+      this.overlaysNode.style.width = newTextWidth;
+    }
   };
 
   calculateVisibleLines = () => {
@@ -218,7 +229,7 @@ export default class Renderer {
   render = () => {
     const { scrollTop } = this.scrollContainerNode;
 
-    this.calculateTextHeight();
+    this.calculateTextDimensions();
     const [firstVisibleLine, lastVisibleLine] = this.calculateVisibleLines();
     this.drawVisibleLines(firstVisibleLine, lastVisibleLine, scrollTop);
     this.drawSelection(firstVisibleLine, lastVisibleLine);

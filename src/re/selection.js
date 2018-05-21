@@ -33,6 +33,19 @@ export default class Selection {
   };
 
   /**
+   * Moves cursor one line down, preserving cursor column when possible.
+   */
+  moveCursorLineDown = () => {
+    if (this.cursorLine < this.document.getLineCount() - 1) {
+      this.cursorLine++;
+      const lineLength = this.document.getLineLength(this.cursorLine);
+      this.cursorCol = Math.min(this.savedCursorCol, lineLength);
+    }
+
+    this.notifySelectionChange();
+  };
+
+  /**
    * Moves cursor one line up, preserving cursor column when possible.
    */
   moveCursorLineUp = () => {
@@ -46,13 +59,15 @@ export default class Selection {
   };
 
   /**
-   * Moves cursor one line down, preserving cursor column when possible.
+   * Moves cursor one column forward.
    */
-  moveCursorLineDown = () => {
-    if (this.cursorLine < this.document.getLineCount() - 1) {
+  moveCursorColForward = () => {
+    if (this.cursorCol < this.document.getLineLength(this.cursorLine)) {
+      this.cursorCol++;
+      this.savedCursorCol = this.cursorCol;
+    } else if (this.cursorLine < this.document.getLineCount() - 1) {
       this.cursorLine++;
-      const lineLength = this.document.getLineLength(this.cursorLine);
-      this.cursorCol = Math.min(this.savedCursorCol, lineLength);
+      this.cursorCol = this.savedCursorCol = 0;
     }
 
     this.notifySelectionChange();
@@ -75,19 +90,14 @@ export default class Selection {
   };
 
   /**
-   * Moves cursor one column forward.
+   * Moves cursor one word forward.
    */
-  moveCursorColForward = () => {
-    if (this.cursorCol < this.document.getLineLength(this.cursorLine)) {
-      this.cursorCol++;
-      this.savedCursorCol = this.cursorCol;
-    } else if (this.cursorLine < this.document.getLineCount() - 1) {
-      this.cursorLine++;
-      this.cursorCol = this.savedCursorCol = 0;
-    }
+  moveCursorWordForward = () => {};
 
-    this.notifySelectionChange();
-  };
+  /**
+   * Moves cursor one word backward.
+   */
+  moveCursorWordBackward = () => {};
 
   /**
    * Moves cursor to the beginning of the current line.

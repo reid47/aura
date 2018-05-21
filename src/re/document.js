@@ -7,6 +7,7 @@ export default class Document {
   constructor(options) {
     this.options = options;
     this.lines = [];
+    this.longestLineLength = 0;
   }
 
   /**
@@ -15,6 +16,11 @@ export default class Document {
    */
   setValue = newValue => {
     this.lines = newValue.split(/\r\n|\r|\n/);
+    this.longestLineLength = 0;
+    this.lines.forEach(line => {
+      if (line.length > this.longestLineLength)
+        this.longestLineLength = line.length;
+    });
   };
 
   /**
@@ -33,6 +39,11 @@ export default class Document {
   getLineLength = lineIndex => this.lines[lineIndex].length;
 
   /**
+   * Gets the length of the longest line in the document.
+   */
+  getLongestLineLength = () => this.longestLineLength;
+
+  /**
    * Gets the total number of lines in the document.
    */
   getLineCount = () => this.lines.length;
@@ -42,5 +53,6 @@ export default class Document {
    */
   updateLine = (lineIndex, newValue) => {
     this.lines[lineIndex] = newValue;
+    if (newValue.length > this.longestLineLength) this.longestLineLength = 0;
   };
 }
