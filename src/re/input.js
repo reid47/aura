@@ -1,4 +1,5 @@
 import { keyCode, keyCodes, ctrl } from '../keys';
+import { on } from '../dom';
 import { dispatchCursorMove, dispatchLineTextChange } from '../custom-events';
 
 /**
@@ -19,8 +20,8 @@ export default class Input {
     this.root.setAttribute('autocapitalize', 'off');
     this.root.setAttribute('spellcheck', 'false');
 
-    this.root.addEventListener('input', this.onInput);
-    this.root.addEventListener('keydown', this.onKeyDown);
+    on(this.root, 'input', this.onInput);
+    on(this.root, 'keydown', this.onKeyDown);
   }
 
   focus = () => {

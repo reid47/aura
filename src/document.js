@@ -238,6 +238,5 @@ export default class Document {
     this.selectionEndLine = endLine;
     this.selectionEndColumn = endColumn;
     this.selectionActive = true;
-    console.log(this.getSelection());
   };
 }

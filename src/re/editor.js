@@ -2,6 +2,7 @@ import Document from './document';
 import Session from './session';
 import Renderer from './renderer';
 import mergeWithDefaultOptions from './options';
+import { on } from '../dom';
 
 /**
  * Represents a single Aura instance.
@@ -19,8 +20,8 @@ export default class Editor {
     this.renderer = new Renderer(this.root, this.document, this.session, this.options);
 
     this.renderer.mount();
-    this.root.addEventListener('lineTextChange', this.onLineTextChange);
-    this.root.addEventListener('selectionChange', this.onSelectionChange);
+    on(this.root, 'lineTextChange', this.onLineTextChange);
+    on(this.root, 'selectionChange', this.onSelectionChange);
   }
 
   onLineTextChange = () => {

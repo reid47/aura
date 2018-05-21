@@ -14,10 +14,12 @@ export default class Renderer {
   }
 
   mount = () => {
+    const makeRef = nodeName => node => (this[nodeName] = node);
+
     const els = el(
       'div.Aura-editor',
       {
-        ref: node => (this.editorNode = node),
+        ref: makeRef('editorNode'),
         style: {
           fontSize: px(this.session.getSetting('fontSize')),
           lineHeight: px(this.session.getSetting('lineHeight'))
@@ -25,24 +27,24 @@ export default class Renderer {
       },
       el(
         'div.Aura-scroll-container',
-        { ref: node => (this.scrollContainerNode = node) },
+        { ref: makeRef('scrollContainerNode') },
         el(
           'div.Aura-text-container',
           {},
           el(
             'div.Aura-overlays',
-            { ref: node => (this.overlaysNode = node) },
+            { ref: makeRef('overlaysNode') },
             el(
               'div.Aura-selection-overlay',
-              { ref: node => (this.selectionOverlayNode = node) },
+              { ref: makeRef('selectionOverlayNode') },
               el(
                 'div.Aura-active-line',
-                { ref: node => (this.activeLineNode = node) },
-                el('div.Aura-cursor', { ref: node => (this.cursorNode = node) })
+                { ref: makeRef('activeLineNode') },
+                el('div.Aura-cursor', { ref: makeRef('cursorNode') })
               )
             )
           ),
-          el('div.Aura-text-view', { ref: node => (this.textViewNode = node) })
+          el('div.Aura-text-view', { ref: makeRef('textViewNode') })
         )
       )
     );

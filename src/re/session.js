@@ -1,6 +1,7 @@
 import Selection from './selection';
 import Input from './input';
 import { keyCodes } from '../keys';
+import { on } from '../dom';
 import { measureCharacterWidth } from '../helpers/font-helper';
 
 export default class Session {
@@ -14,9 +15,9 @@ export default class Session {
     this.document.setValue(this.options.initialValue || '');
     this.input.setBuffer(this.document.getLine(this.selection.cursorLine));
 
-    this.root.addEventListener('lineTextChange', this.onLineTextChange);
-    this.root.addEventListener('cursorMove', this.onCursorMove);
-    this.root.addEventListener('selectionChange', this.onSelectionChange);
+    on(this.root, 'lineTextChange', this.onLineTextChange);
+    on(this.root, 'cursorMove', this.onCursorMove);
+    on(this.root, 'selectionChange', this.onSelectionChange);
   }
 
   getSetting = settingName => {
