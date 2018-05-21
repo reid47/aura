@@ -45,6 +45,10 @@ export default class Session {
   onCursorMove = ({ detail: { direction, ctrlKey } }) => {
     if (ctrlKey) {
       switch (direction) {
+        case keyCodes.LEFT:
+          return this.selection.moveCursorWordBackward();
+        case keyCodes.RIGHT:
+          return this.selection.moveCursorWordForward();
         case keyCodes.HOME:
           return this.selection.moveCursorDocumentStart();
         case keyCodes.END:

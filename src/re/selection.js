@@ -1,8 +1,12 @@
 import { dispatchSelectionChange } from '../custom-events';
 
+const whitespaceRe = /^\s/;
+const wordSepRe = /^[.,!?$/_\\\-=+*'";()[\]{}|`~<>@#%^&]/;
+const wordSepOrWhitespaceRe = /^[.,!?$/_\\\-=+*'";()[\]{}|`~<>@#%^&\s]/;
+
 /**
  * Represents the position of the cursor and/or current selection
- * within a `Document`.
+ * within a `Document`
  */
 export default class Selection {
   constructor(root, session, document) {
@@ -92,12 +96,45 @@ export default class Selection {
   /**
    * Moves cursor one word forward.
    */
-  moveCursorWordForward = () => {};
+  moveCursorWordForward = () => {
+    const lineText = this.document.getLine(this.cursorLine);
+    const length = lineText.length;
+    if (this.cursorCol === length) return this.moveCursorColForward();
+
+    let i = this.cursorCol;
+    while (i < length && whitespaceRe.test(lineText[i])) i++;
+    if (i < length) {
+      if (wordSepRe.test(lineText[i])) {
+        while (i < length && wordSepRe.test(lineText[i])) i++;
+      } else {
+        while (i < length && !wordSepOrWhitespaceRe.test(lineText[i])) i++;
+      }
+    }
+
+    this.cursorCol = this.savedCursorCol = i;
+    this.notifySelectionChange();
+  };
 
   /**
    * Moves cursor one word backward.
    */
-  moveCursorWordBackward = () => {};
+  moveCursorWordBackward = () => {
+    if (this.cursorCol === 0) return this.moveCursorColBackward();
+    const lineText = this.document.getLine(this.cursorLine);
+
+    let i = this.cursorCol;
+    while (i > 0 && whitespaceRe.test(lineText[i - 1])) i--;
+    if (i > 0) {
+      if (wordSepRe.test(lineText[i - 1])) {
+        while (i > 0 && wordSepRe.test(lineText[i - 1])) i--;
+      } else {
+        while (i > 0 && !wordSepOrWhitespaceRe.test(lineText[i - 1])) i--;
+      }
+    }
+
+    this.cursorCol = this.savedCursorCol = i;
+    this.notifySelectionChange();
+  };
 
   /**
    * Moves cursor to the beginning of the current line.
