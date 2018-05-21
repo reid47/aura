@@ -1,6 +1,7 @@
 const defaultOptions = {
   /**
    * Editor font family
+   * Can be any CSS font value (e.g. "Consolas, 'Courier New', monospace")
    */
   fontFamily: 'monospace',
 

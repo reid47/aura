@@ -64,12 +64,12 @@ export default class Renderer {
 
     if (cursorLine < this.savedFirstVisibleLine + lineOverscan) {
       const lineHeight = this.session.getSetting('lineHeight');
-      this.scrollContainerNode.scrollTop = (cursorLine - 2) * lineHeight;
+      this.scrollContainerNode.scrollTop = (cursorLine - 1) * lineHeight;
     } else if (cursorLine > this.savedLastVisibleLine - lineOverscan) {
       const lineHeight = this.session.getSetting('lineHeight');
       const { clientHeight } = this.scrollContainerNode;
       this.scrollContainerNode.scrollTop =
-        (cursorLine + 2) * lineHeight - clientHeight;
+        (cursorLine + 1) * lineHeight - clientHeight;
     }
   };
 
