@@ -11,19 +11,6 @@ export default class Document {
   }
 
   /**
-   * Given a string, sets value of full document to that string,
-   * replacing any existing lines.
-   */
-  setValue = newValue => {
-    this.lines = newValue.split(/\r\n|\r|\n/);
-    this.longestLineLength = 0;
-    this.lines.forEach(line => {
-      if (line.length > this.longestLineLength)
-        this.longestLineLength = line.length;
-    });
-  };
-
-  /**
    * Gets all lines in document.
    */
   getLines = () => this.lines;
@@ -47,6 +34,19 @@ export default class Document {
    * Gets the total number of lines in the document.
    */
   getLineCount = () => this.lines.length;
+
+  /**
+   * Given a string, sets value of full document to that string,
+   * replacing any existing lines.
+   */
+  setValue = newValue => {
+    this.lines = newValue.split(/\r\n|\r|\n/);
+    this.longestLineLength = 0;
+    this.lines.forEach(line => {
+      if (line.length > this.longestLineLength)
+        this.longestLineLength = line.length;
+    });
+  };
 
   /**
    * Updates the line at given `lineIndex` to be `newValue`.
