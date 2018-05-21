@@ -25,10 +25,7 @@ export default class Session {
 
   getCharacterWidth = () => {
     const { fontSize, fontFamily } = this.options;
-    if (
-      this.savedFontSize !== fontSize ||
-      this.savedFontFamily !== fontFamily
-    ) {
+    if (this.savedFontSize !== fontSize || this.savedFontFamily !== fontFamily) {
       this.characterWidth = measureCharacterWidth(fontFamily, fontSize);
       this.savedFontSize = fontSize;
       this.savedFontFamily = fontFamily;

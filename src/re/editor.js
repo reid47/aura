@@ -16,12 +16,7 @@ export default class Editor {
     this.options = mergeWithDefaultOptions(options);
     this.document = new Document(this.options);
     this.session = new Session(this.root, this.document, this.options);
-    this.renderer = new Renderer(
-      this.root,
-      this.document,
-      this.session,
-      this.options
-    );
+    this.renderer = new Renderer(this.root, this.document, this.session, this.options);
 
     this.renderer.mount();
     this.root.addEventListener('lineTextChange', this.onLineTextChange);

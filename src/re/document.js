@@ -43,8 +43,7 @@ export default class Document {
     this.lines = newValue.split(/\r\n|\r|\n/);
     this.longestLineLength = 0;
     this.lines.forEach(line => {
-      if (line.length > this.longestLineLength)
-        this.longestLineLength = line.length;
+      if (line.length > this.longestLineLength) this.longestLineLength = line.length;
     });
   };
 

@@ -84,9 +84,7 @@ export default class Selection {
     if (this.cursorCol > 0) {
       this.cursorCol = this.savedCursorCol = this.cursorCol - 1;
     } else if (this.cursorLine > 0) {
-      this.cursorCol = this.savedCursorCol = this.document.getLineLength(
-        this.cursorLine - 1
-      );
+      this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine - 1);
       this.cursorLine--;
     }
 
@@ -148,9 +146,7 @@ export default class Selection {
    * Moves cursor to the end of the current line.
    */
   moveCursorLineEnd = () => {
-    this.cursorCol = this.savedCursorCol = this.document.getLineLength(
-      this.cursorLine
-    );
+    this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine);
     this.notifySelectionChange();
   };
 
@@ -168,9 +164,7 @@ export default class Selection {
    */
   moveCursorDocumentEnd = () => {
     this.cursorLine = this.document.getLineCount() - 1;
-    this.cursorCol = this.savedCursorCol = this.document.getLineLength(
-      this.cursorLine
-    );
+    this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine);
     this.notifySelectionChange();
   };
 

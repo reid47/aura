@@ -1,4 +1,4 @@
-import { el } from '../dom';
+import { el, on } from '../dom';
 import { escape, px } from '../util';
 
 export default class Renderer {
@@ -50,11 +50,11 @@ export default class Renderer {
     this.root.parentNode.replaceChild(els, this.root);
     this.root.classList.add('Aura-input');
     els.insertBefore(this.root, els.firstChild);
-    this.scrollContainerNode.addEventListener('scroll', this.render);
-    this.scrollContainerNode.addEventListener(
-      'mousedown',
-      this.session.selection.onMouseDown
-    );
+
+    on(this.scrollContainerNode, 'scroll', this.render);
+    on(this.scrollContainerNode, 'resize', this.render);
+    on(this.scrollContainerNode, 'mousedown', this.session.selection.onMouseDown);
+
     this.render();
   };
 
@@ -68,8 +68,7 @@ export default class Renderer {
     } else if (cursorLine > this.savedLastVisibleLine - lineOverscan) {
       const lineHeight = this.session.getSetting('lineHeight');
       const { clientHeight } = this.scrollContainerNode;
-      this.scrollContainerNode.scrollTop =
-        (cursorLine + 1) * lineHeight - clientHeight;
+      this.scrollContainerNode.scrollTop = (cursorLine + 1) * lineHeight - clientHeight;
     }
   };
 
@@ -110,14 +109,10 @@ export default class Renderer {
       return [firstVisibleLine, lastVisibleLine];
     }
 
-    const firstVisibleLine = Math.max(
-      0,
-      Math.floor(scrollTop / lineHeight) - lineOverscan
-    );
+    const firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight) - lineOverscan);
     const lastVisibleLine = Math.min(
       lineCount,
-      Math.ceil((scrollTop + clientHeight - lineHeight) / lineHeight) +
-        lineOverscan
+      Math.ceil((scrollTop + clientHeight - lineHeight) / lineHeight) + lineOverscan
     );
 
     return [firstVisibleLine, lastVisibleLine];
@@ -134,11 +129,7 @@ export default class Renderer {
       firstVisibleLine === this.savedFirstVisibleLine &&
       lastVisibleLine === this.savedLastVisibleLine
     ) {
-      for (
-        let line = firstVisibleLine, i = 0;
-        line <= lastVisibleLine;
-        line++, i++
-      ) {
+      for (let line = firstVisibleLine, i = 0; line <= lastVisibleLine; line++, i++) {
         const text = lines[line] || ' ';
         const lineNode = this.textViewNode.childNodes[i];
         if (lineNode.innerText !== text) lineNode.innerHTML = escape(text);
@@ -162,11 +153,7 @@ export default class Renderer {
       }
 
       // Then, for each visible line...
-      for (
-        let line = firstVisibleLine, i = 0;
-        line <= lastVisibleLine;
-        line++, i++
-      ) {
+      for (let line = firstVisibleLine, i = 0; line <= lastVisibleLine; line++, i++) {
         const text = lines[line] || ' ';
         let lineNode = this.textViewNode.childNodes[i];
         if (!lineNode) {
@@ -191,9 +178,7 @@ export default class Renderer {
     for (let line = firstVisibleLine; line <= lastVisibleLine; line++) {
       const text = lines[line] || ' ';
       const top = px(line * lineHeight);
-      visibleLineHtml.push(
-        `<div class="Aura-line" style="top: ${top}">${escape(text)}</div>`
-      );
+      visibleLineHtml.push(`<div class="Aura-line" style="top: ${top}">${escape(text)}</div>`);
     }
 
     this.textViewNode.innerHTML = visibleLineHtml.join('');
@@ -202,17 +187,9 @@ export default class Renderer {
   drawSelection = (firstVisibleLine, lastVisibleLine) => {
     this.activeLineNode.hidden = true;
 
-    const {
-      cursorLine,
-      cursorCol,
-      selectionActive
-    } = this.session.selection.getState();
+    const { cursorLine, cursorCol, selectionActive } = this.session.selection.getState();
 
-    if (
-      !selectionActive &&
-      cursorLine >= firstVisibleLine &&
-      cursorLine <= lastVisibleLine
-    ) {
+    if (!selectionActive && cursorLine >= firstVisibleLine && cursorLine <= lastVisibleLine) {
       const lineHeight = this.session.getSetting('lineHeight');
       const characterWidth = this.session.getCharacterWidth();
 
