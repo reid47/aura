@@ -51,7 +51,16 @@ export default class Session {
     this.document.deleteLineBreak(this.selection.cursorLine);
   };
 
-  onCursorMove = ({ detail: { direction, ctrlKey } }) => {
+  onCursorMove = ({ detail: { direction, shiftKey, ctrlKey } }) => {
+    if (shiftKey && !ctrlKey) {
+      switch (direction) {
+        case keyCodes.LEFT:
+          return this.selection.selectColBackward();
+        case keyCodes.RIGHT:
+          return this.selection.selectColForward();
+      }
+    }
+
     if (ctrlKey) {
       switch (direction) {
         case keyCodes.LEFT:

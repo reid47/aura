@@ -1,8 +1,5 @@
 .Aura-editor {
   --color-fg: #333;
-  --color-bg: #fff;
-  --textarea-highlight-background: rgb(71, 113, 175);
-  --textarea-highlight-color: #fff;
 
   width: 100%;
   height: 100%;
@@ -46,7 +43,6 @@
 
 .Aura-text-view {
   width: 100%;
-  padding: 0 4px;
   font-family: inherit;
   line-height: inherit;
   white-space: pre;
@@ -93,7 +89,6 @@
 .Aura-active-line {
   position: absolute;
   width: 100%;
-  padding: 0 4px;
   border-top: 2px solid rgba(0, 0, 0, 0.1);
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
@@ -150,16 +145,4 @@
 
 .Aura-line {
   position: absolute;
-}
-
-.Aura-token.keyword {
-  color: tomato;
-}
-
-.Aura-token.number {
-  color: rgb(184, 46, 184);
-}
-
-.Aura-token.string {
-  color: rgb(19, 74, 255);
 }

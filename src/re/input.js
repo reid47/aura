@@ -1,4 +1,4 @@
-import { keyCode, keyCodes, ctrl } from '../keys';
+import { keyCode, keyCodes, ctrl, shift } from '../keys';
 import { on } from '../dom';
 import {
   dispatchCursorMove,
@@ -56,7 +56,7 @@ export default class Input {
       case keyCodes.HOME:
       case keyCodes.END:
         evt.preventDefault();
-        this.notifyCursorMove(evtKeyCode, ctrl(evt));
+        this.notifyCursorMove(evtKeyCode, shift(evt), ctrl(evt));
         return;
 
       case keyCodes.ENTER:
@@ -85,7 +85,7 @@ export default class Input {
     dispatchLineBreakDelete(this.root);
   };
 
-  notifyCursorMove = (direction, ctrlKey) => {
-    dispatchCursorMove(this.root, { direction, ctrlKey });
+  notifyCursorMove = (direction, shiftKey, ctrlKey) => {
+    dispatchCursorMove(this.root, { direction, shiftKey, ctrlKey });
   };
 }

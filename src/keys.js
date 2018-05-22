@@ -16,3 +16,5 @@ export const keyCodes = {
 export const keyCode = evt => evt.keyCode || evt.which;
 
 export const ctrl = evt => evt.metaKey || evt.ctrlKey;
+
+export const shift = evt => evt.shiftKey;

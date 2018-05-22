@@ -17,21 +17,16 @@ export default class Selection {
     this.cursorLine = 0;
     this.cursorCol = 0;
     this.savedCursorCol = 0;
+    this.selectionActive = false;
+    this.selectionEndLine = 0;
+    this.selectionEndCol = 0;
   }
-
-  /**
-   * Gets the current cursor/selection info
-   */
-  getState = () => ({
-    cursorLine: this.cursorLine,
-    cursorCol: this.cursorCol,
-    selectionActive: false
-  });
 
   /**
    * Sets the current cursor line
    */
   setCursorLine = newCursorLine => {
+    this.selectionActive = false;
     this.cursorLine = newCursorLine;
     this.notifySelectionChange();
   };
@@ -40,6 +35,7 @@ export default class Selection {
    * Sets the current cursor column
    */
   setCursorCol = newCursorCol => {
+    this.selectionActive = false;
     this.cursorCol = this.savedCursorCol = newCursorCol;
     this.notifySelectionChange();
   };
@@ -48,6 +44,7 @@ export default class Selection {
    * Sets the current cursor line and column
    */
   setCursorPosition = (newCursorLine, newCursorCol) => {
+    this.selectionActive = false;
     this.cursorLine = newCursorLine;
     this.cursorCol = this.savedCursorCol = newCursorCol;
     this.notifySelectionChange();
@@ -58,6 +55,7 @@ export default class Selection {
    */
   moveCursorLineDown = () => {
     if (this.cursorLine < this.document.getLineCount() - 1) {
+      this.selectionActive = false;
       this.cursorLine++;
       const lineLength = this.document.getLineLength(this.cursorLine);
       this.cursorCol = Math.min(this.savedCursorCol, lineLength);
@@ -71,6 +69,7 @@ export default class Selection {
    */
   moveCursorLineUp = () => {
     if (this.cursorLine > 0) {
+      this.selectionActive = false;
       this.cursorLine--;
       const lineLength = this.document.getLineLength(this.cursorLine);
       this.cursorCol = Math.min(this.savedCursorCol, lineLength);
@@ -84,9 +83,11 @@ export default class Selection {
    */
   moveCursorColForward = () => {
     if (this.cursorCol < this.document.getLineLength(this.cursorLine)) {
+      this.selectionActive = false;
       this.cursorCol++;
       this.savedCursorCol = this.cursorCol;
     } else if (this.cursorLine < this.document.getLineCount() - 1) {
+      this.selectionActive = false;
       this.cursorLine++;
       this.cursorCol = this.savedCursorCol = 0;
     }
@@ -99,8 +100,10 @@ export default class Selection {
    */
   moveCursorColBackward = () => {
     if (this.cursorCol > 0) {
+      this.selectionActive = false;
       this.cursorCol = this.savedCursorCol = this.cursorCol - 1;
     } else if (this.cursorLine > 0) {
+      this.selectionActive = false;
       this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine - 1);
       this.cursorLine--;
     }
@@ -126,6 +129,7 @@ export default class Selection {
       }
     }
 
+    this.selectionActive = false;
     this.cursorCol = this.savedCursorCol = i;
     this.notifySelectionChange();
   };
@@ -147,6 +151,7 @@ export default class Selection {
       }
     }
 
+    this.selectionActive = false;
     this.cursorCol = this.savedCursorCol = i;
     this.notifySelectionChange();
   };
@@ -155,6 +160,7 @@ export default class Selection {
    * Moves cursor to the beginning of the current line.
    */
   moveCursorLineStart = () => {
+    this.selectionActive = false;
     this.cursorCol = this.savedCursorCol = 0;
     this.notifySelectionChange();
   };
@@ -163,6 +169,7 @@ export default class Selection {
    * Moves cursor to the end of the current line.
    */
   moveCursorLineEnd = () => {
+    this.selectionActive = false;
     this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine);
     this.notifySelectionChange();
   };
@@ -171,6 +178,7 @@ export default class Selection {
    * Moves cursor to the very beginning of the document.
    */
   moveCursorDocumentStart = () => {
+    this.selectionActive = false;
     this.cursorLine = 0;
     this.cursorCol = this.savedCursorCol = 0;
     this.notifySelectionChange();
@@ -180,6 +188,7 @@ export default class Selection {
    * Moves cursor to the very end of the document.
    */
   moveCursorDocumentEnd = () => {
+    this.selectionActive = false;
     this.cursorLine = this.document.getLineCount() - 1;
     this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine);
     this.notifySelectionChange();
@@ -203,8 +212,41 @@ export default class Selection {
       Math.round(offsetX / characterWidth)
     );
 
+    this.selectionActive = false;
     this.cursorLine = newCursorLine;
     this.cursorCol = this.savedCursorCol = newCursorCol;
+    this.notifySelectionChange();
+  };
+
+  /**
+   * Moves selection one column forward.
+   */
+  selectColForward = () => {
+    if (this.selectionEndCol < this.document.getLineLength(this.cursorLine)) {
+      this.selectionActive = true;
+      this.selectionEndCol++;
+    } else if (this.selectionEndLine < this.document.getLineCount() - 1) {
+      this.selectionActive = true;
+      this.selectionEndLine++;
+      this.selectionEndCol = 0;
+    }
+
+    this.notifySelectionChange();
+  };
+
+  /**
+   * Moves cursor one column backward.
+   */
+  selectColBackward = () => {
+    if (this.selectionEndCol > 0) {
+      this.selectionActive = true;
+      this.selectionEndCol = this.selectionEndCol - 1;
+    } else if (this.selectionEndLine > 0) {
+      this.selectionActive = true;
+      this.selectionEndCol = this.document.getLineLength(this.selectionEndLine - 1);
+      this.selectionEndLine--;
+    }
+
     this.notifySelectionChange();
   };
 
