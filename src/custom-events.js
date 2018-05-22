@@ -3,9 +3,9 @@
 
   // Polyfill for browsers that do not support CustomEvents
   function CustomEvent(event, params) {
-    params = params || { detail: undefined };
+    params = params || { detail: true };
     const evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent(event, params.detail);
+    evt.initCustomEvent(event, false, false, params.detail);
     return evt;
   }
 

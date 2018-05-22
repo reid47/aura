@@ -36,6 +36,12 @@ export default class Document {
   getLineCount = () => this.lines.length;
 
   /**
+   * Gets the current value of the document as a single string, with lines
+   * joined by `options.lineSeparator`
+   */
+  getValue = () => this.lines.join(this.options.lineSeparator);
+
+  /**
    * Given a string, sets value of full document to that string,
    * replacing any existing lines.
    */

@@ -18,7 +18,12 @@ const defaultOptions = {
   /**
    *  Number of extra lines to render above/below visible area
    */
-  lineOverscan: 5
+  lineOverscan: 5,
+
+  /**
+   * Character to use to join lines, e.g. when calling `document.getValue()`
+   */
+  lineSeparator: '\n'
 };
 
 export default function mergeWithDefaultOptions(givenOptions) {

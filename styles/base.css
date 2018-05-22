@@ -118,6 +118,7 @@
   overflow: hidden;
   pointer-events: none;
   user-select: none;
+  background-color: black;
   background-color: var(--color-fg);
   animation: cursor-blink 1s infinite;
 }

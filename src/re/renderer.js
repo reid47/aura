@@ -1,18 +1,21 @@
 import { el, on } from '../dom';
 import { escape, px } from '../util';
 
+/**
+ * Responsible for drawing all of the visible portions of the editor in the DOM.
+ */
 export default class Renderer {
   constructor(root, document, session, options) {
     this.root = root;
     this.document = document;
     this.session = session;
     this.options = options;
-
-    this.editorNode = null;
-    this.scrollContainerNode = null;
-    this.textViewNode = null;
   }
 
+  /**
+   * Initially creates the DOM structure that represents the editor based on the
+   * given root `textarea`. Called once when the editor is intialized.
+   */
   mount = () => {
     const makeRef = nodeName => node => (this[nodeName] = node);
 
@@ -66,7 +69,7 @@ export default class Renderer {
 
     if (cursorLine < this.savedFirstVisibleLine + lineOverscan) {
       const lineHeight = this.session.getSetting('lineHeight');
-      this.scrollContainerNode.scrollTop = (cursorLine - 1) * lineHeight;
+      this.scrollContainerNode.scrollTop = cursorLine * lineHeight;
     } else if (cursorLine > this.savedLastVisibleLine - lineOverscan) {
       const lineHeight = this.session.getSetting('lineHeight');
       const { clientHeight } = this.scrollContainerNode;
@@ -199,8 +202,7 @@ export default class Renderer {
       this.activeLineNode.style.height = px(lineHeight);
       this.activeLineNode.style.top = px(cursorLine * lineHeight);
       this.cursorNode.style.transform = `translateX(${px(columnOffset)})`;
-      this.cursorNode.style.animation = 'none';
-      setTimeout(() => (this.cursorNode.style.animation = null), 0);
+      this.cursorNode.offsetHeight;
       this.activeLineNode.hidden = false;
     }
   };

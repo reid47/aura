@@ -12,6 +12,12 @@
   <link rel="stylesheet" href="styles/base.css" />
 
   <script>
+    function repeat(str, times) {
+      const strs = [];
+      for (let i = 0; i < times; i++) strs.push(str);
+      return strs.join('');
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       window.editor = new Aura('#root', {
         disableSyntaxHighlighting: true,
