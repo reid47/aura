@@ -24,6 +24,7 @@ export default class Renderer {
       {
         ref: makeRef('editorNode'),
         style: {
+          fontFamily: this.session.getSetting('fontFamily'),
           fontSize: px(this.session.getSetting('fontSize')),
           lineHeight: px(this.session.getSetting('lineHeight'))
         }

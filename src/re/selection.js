@@ -184,18 +184,13 @@ export default class Selection {
    */
   onMouseDown = evt => {
     const characterWidth = this.session.getCharacterWidth();
+    const lineCount = this.document.getLineCount();
     const lineHeight = this.session.getSetting('lineHeight');
     const rect = evt.currentTarget.getBoundingClientRect();
     const offsetX = evt.clientX + evt.currentTarget.scrollLeft - rect.left;
     const offsetY = evt.clientY + evt.currentTarget.scrollTop - rect.top;
 
-    // TODO: binary search?
-    let newCursorLine = 0;
-    while (newCursorLine * lineHeight < offsetY) {
-      newCursorLine++;
-    }
-    newCursorLine--;
-
+    const newCursorLine = Math.min(~~(offsetY / lineHeight), lineCount - 1);
     const newCursorCol = Math.min(
       this.document.getLineLength(newCursorLine),
       Math.round(offsetX / characterWidth)

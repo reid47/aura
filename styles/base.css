@@ -1,7 +1,6 @@
 .Aura-editor {
   --color-fg: #333;
   --color-bg: #fff;
-  --textarea-font: monospace;
   --textarea-highlight-background: rgb(71, 113, 175);
   --textarea-highlight-color: #fff;
 
@@ -14,7 +13,6 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  font-family: monospace;
 }
 
 .Aura-editor * {
@@ -76,7 +74,6 @@
 
 .Aura-line-numbers {
   min-width: 40px;
-  font-family: var(--textarea-font);
   line-height: inherit;
   text-align: right;
   position: relative;
@@ -102,7 +99,6 @@
 .Aura-cursor-overlay {
   width: 100%;
   position: absolute;
-  font-family: var(--textarea-font);
   white-space: pre;
   overflow: hidden;
   pointer-events: none;
@@ -143,7 +139,6 @@
 
 .Aura-selection {
   background: lightblue;
-  font-family: var(--textarea-font);
   line-height: inherit;
   white-space: pre;
   user-select: none;
