@@ -29,9 +29,26 @@ export default class Selection {
   });
 
   /**
+   * Sets the current cursor line
+   */
+  setCursorLine = newCursorLine => {
+    this.cursorLine = newCursorLine;
+    this.notifySelectionChange();
+  };
+
+  /**
    * Sets the current cursor column
    */
   setCursorCol = newCursorCol => {
+    this.cursorCol = this.savedCursorCol = newCursorCol;
+    this.notifySelectionChange();
+  };
+
+  /**
+   * Sets the current cursor line and column
+   */
+  setCursorPosition = (newCursorLine, newCursorCol) => {
+    this.cursorLine = newCursorLine;
     this.cursorCol = this.savedCursorCol = newCursorCol;
     this.notifySelectionChange();
   };
@@ -169,16 +186,6 @@ export default class Selection {
   };
 
   /**
-   * Raises a `selectionChange` event on the DOM node.
-   */
-  notifySelectionChange = () => {
-    dispatchSelectionChange(this.root, {
-      cursorLine: this.cursorLine,
-      cursorCol: this.cursorCol
-    });
-  };
-
-  /**
    * Handles mousedown events on the scroll container and updates the selection
    * accordingly.
    */
@@ -199,5 +206,15 @@ export default class Selection {
     this.cursorLine = newCursorLine;
     this.cursorCol = this.savedCursorCol = newCursorCol;
     this.notifySelectionChange();
+  };
+
+  /**
+   * Raises a `selectionChange` event on the DOM node.
+   */
+  notifySelectionChange = () => {
+    dispatchSelectionChange(this.root, {
+      cursorLine: this.cursorLine,
+      cursorCol: this.cursorCol
+    });
   };
 }

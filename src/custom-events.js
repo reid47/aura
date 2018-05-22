@@ -17,6 +17,10 @@ export const dispatchCursorMove = (root, detail) => {
   root.dispatchEvent(new CustomEvent('cursorMove', { detail }));
 };
 
+export const dispatchLineBreak = (root, detail) => {
+  root.dispatchEvent(new CustomEvent('lineBreak', { detail }));
+};
+
 export const dispatchLineTextChange = (root, detail) => {
   root.dispatchEvent(new CustomEvent('lineTextChange', { detail }));
 };

@@ -18,6 +18,7 @@ export default class Session {
     on(this.root, 'lineTextChange', this.onLineTextChange);
     on(this.root, 'cursorMove', this.onCursorMove);
     on(this.root, 'selectionChange', this.onSelectionChange);
+    on(this.root, 'lineBreak', this.onLineBreak);
   }
 
   getSetting = settingName => {
@@ -35,9 +36,14 @@ export default class Session {
     return this.characterWidth;
   };
 
-  onLineTextChange = ({ detail: { text, cursorCol } }) => {
-    this.document.updateLine(this.selection.cursorLine, text);
-    this.selection.setCursorCol(cursorCol);
+  onLineTextChange = ({ detail: { text, cursorLine, cursorCol } }) => {
+    const changedLine = cursorLine != null ? cursorLine : this.selection.cursorLine;
+    this.document.updateLine(changedLine, text);
+    this.selection.setCursorPosition(changedLine, cursorCol);
+  };
+
+  onLineBreak = ({ detail: { cursorCol } }) => {
+    this.document.insertLineBreak(this.selection.cursorLine, cursorCol);
   };
 
   onCursorMove = ({ detail: { direction, ctrlKey } }) => {

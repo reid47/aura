@@ -1,6 +1,6 @@
 import { keyCode, keyCodes, ctrl } from '../keys';
 import { on } from '../dom';
-import { dispatchCursorMove, dispatchLineTextChange } from '../custom-events';
+import { dispatchLineBreak, dispatchCursorMove, dispatchLineTextChange } from '../custom-events';
 
 /**
  * Wraps the inner `textarea` element that receives the input and
@@ -53,11 +53,20 @@ export default class Input {
         evt.preventDefault();
         this.notifyCursorMove(evtKeyCode, ctrl(evt));
         return;
+
+      case keyCodes.ENTER:
+        evt.preventDefault();
+        this.notifyLineBreak(this.root.selectionStart);
+        return;
     }
   };
 
   notifyLineTextChange = (text, cursorCol) => {
     dispatchLineTextChange(this.root, { text, cursorCol });
+  };
+
+  notifyLineBreak = cursorCol => {
+    dispatchLineBreak(this.root, { cursorCol });
   };
 
   notifyCursorMove = (direction, ctrlKey) => {

@@ -15,7 +15,7 @@ export default class Editor {
   constructor(root, options) {
     this.root = root;
     this.options = mergeWithDefaultOptions(options);
-    this.document = new Document(this.options);
+    this.document = new Document(this.root, this.options);
     this.session = new Session(this.root, this.document, this.options);
     this.renderer = new Renderer(this.root, this.document, this.session, this.options);
 
