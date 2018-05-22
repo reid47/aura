@@ -18,7 +18,8 @@ export default class Session {
     on(this.root, 'lineTextChange', this.onLineTextChange);
     on(this.root, 'cursorMove', this.onCursorMove);
     on(this.root, 'selectionChange', this.onSelectionChange);
-    on(this.root, 'lineBreak', this.onLineBreak);
+    on(this.root, 'lineBreakInsert', this.onLineBreakInsert);
+    on(this.root, 'lineBreakDelete', this.onLineBreakDelete);
   }
 
   getSetting = settingName => {
@@ -42,8 +43,12 @@ export default class Session {
     this.selection.setCursorPosition(changedLine, cursorCol);
   };
 
-  onLineBreak = ({ detail: { cursorCol } }) => {
+  onLineBreakInsert = ({ detail: { cursorCol } }) => {
     this.document.insertLineBreak(this.selection.cursorLine, cursorCol);
+  };
+
+  onLineBreakDelete = () => {
+    this.document.deleteLineBreak(this.selection.cursorLine);
   };
 
   onCursorMove = ({ detail: { direction, ctrlKey } }) => {

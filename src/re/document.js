@@ -100,6 +100,16 @@ export default class Document {
   };
 
   /**
+   * Deletes a given line from the document.
+   */
+  deleteLineBreak = lineIndex => {
+    const currentLine = this.lines[lineIndex];
+    const prevLine = this.lines[lineIndex - 1] || '';
+    this.lines.splice(lineIndex, 1);
+    this.notifyLineTextChange(prevLine + currentLine, Math.max(0, lineIndex - 1), prevLine.length);
+  };
+
+  /**
    * Raises a `lineTextChange` event on the DOM node.
    */
   notifyLineTextChange = (text, cursorLine, cursorCol) => {

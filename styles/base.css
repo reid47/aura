@@ -46,6 +46,7 @@
 
 .Aura-text-view {
   width: 100%;
+  padding: 0 4px;
   font-family: inherit;
   line-height: inherit;
   white-space: pre;
@@ -55,7 +56,7 @@
 }
 
 .Aura-overlays {
-  width: 100%;
+  min-width: 100%;
   position: absolute;
 }
 
@@ -92,6 +93,7 @@
 .Aura-active-line {
   position: absolute;
   width: 100%;
+  padding: 0 4px;
   border-top: 2px solid rgba(0, 0, 0, 0.1);
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
