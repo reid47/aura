@@ -52,7 +52,16 @@ export default class Session {
   };
 
   onCursorMove = ({ detail: { direction, shiftKey, ctrlKey } }) => {
-    if (shiftKey && !ctrlKey) {
+    if (shiftKey && ctrlKey) {
+      switch (direction) {
+        case keyCodes.LEFT:
+          return this.selection.selectWordBackward();
+        case keyCodes.RIGHT:
+          return this.selection.selectWordForward();
+      }
+    }
+
+    if (shiftKey) {
       switch (direction) {
         case keyCodes.LEFT:
           return this.selection.selectColBackward();

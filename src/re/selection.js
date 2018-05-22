@@ -27,7 +27,7 @@ export default class Selection {
    */
   setCursorLine = newCursorLine => {
     this.selectionActive = false;
-    this.cursorLine = newCursorLine;
+    this.cursorLine = this.selectionEndLine = newCursorLine;
     this.notifySelectionChange();
   };
 
@@ -36,7 +36,7 @@ export default class Selection {
    */
   setCursorCol = newCursorCol => {
     this.selectionActive = false;
-    this.cursorCol = this.savedCursorCol = newCursorCol;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = newCursorCol;
     this.notifySelectionChange();
   };
 
@@ -45,8 +45,8 @@ export default class Selection {
    */
   setCursorPosition = (newCursorLine, newCursorCol) => {
     this.selectionActive = false;
-    this.cursorLine = newCursorLine;
-    this.cursorCol = this.savedCursorCol = newCursorCol;
+    this.cursorLine = this.selectionEndLine = newCursorLine;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = newCursorCol;
     this.notifySelectionChange();
   };
 
@@ -56,9 +56,9 @@ export default class Selection {
   moveCursorLineDown = () => {
     if (this.cursorLine < this.document.getLineCount() - 1) {
       this.selectionActive = false;
-      this.cursorLine++;
+      this.cursorLine = this.selectionEndLine = this.cursorLine + 1;
       const lineLength = this.document.getLineLength(this.cursorLine);
-      this.cursorCol = Math.min(this.savedCursorCol, lineLength);
+      this.cursorCol = this.selectionEndCol = Math.min(this.savedCursorCol, lineLength);
     }
 
     this.notifySelectionChange();
@@ -70,9 +70,9 @@ export default class Selection {
   moveCursorLineUp = () => {
     if (this.cursorLine > 0) {
       this.selectionActive = false;
-      this.cursorLine--;
+      this.cursorLine = this.selectionEndLine = this.cursorLine - 1;
       const lineLength = this.document.getLineLength(this.cursorLine);
-      this.cursorCol = Math.min(this.savedCursorCol, lineLength);
+      this.cursorCol = this.selectionEndCol = Math.min(this.savedCursorCol, lineLength);
     }
 
     this.notifySelectionChange();
@@ -84,12 +84,12 @@ export default class Selection {
   moveCursorColForward = () => {
     if (this.cursorCol < this.document.getLineLength(this.cursorLine)) {
       this.selectionActive = false;
-      this.cursorCol++;
+      this.cursorCol = this.selectionEndCol = this.savedCursorCol = this.cursorCol + 1;
       this.savedCursorCol = this.cursorCol;
     } else if (this.cursorLine < this.document.getLineCount() - 1) {
       this.selectionActive = false;
-      this.cursorLine++;
-      this.cursorCol = this.savedCursorCol = 0;
+      this.cursorLine = this.selectionEndLine = this.cursorLine + 1;
+      this.cursorCol = this.selectionEndCol = this.savedCursorCol = 0;
     }
 
     this.notifySelectionChange();
@@ -101,10 +101,12 @@ export default class Selection {
   moveCursorColBackward = () => {
     if (this.cursorCol > 0) {
       this.selectionActive = false;
-      this.cursorCol = this.savedCursorCol = this.cursorCol - 1;
+      this.cursorCol = this.selectionEndCol = this.savedCursorCol = this.cursorCol - 1;
     } else if (this.cursorLine > 0) {
       this.selectionActive = false;
-      this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine - 1);
+      this.cursorCol = this.selectionEndCol = this.savedCursorCol = this.document.getLineLength(
+        this.cursorLine - 1
+      );
       this.cursorLine--;
     }
 
@@ -130,7 +132,7 @@ export default class Selection {
     }
 
     this.selectionActive = false;
-    this.cursorCol = this.savedCursorCol = i;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = i;
     this.notifySelectionChange();
   };
 
@@ -152,7 +154,7 @@ export default class Selection {
     }
 
     this.selectionActive = false;
-    this.cursorCol = this.savedCursorCol = i;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = i;
     this.notifySelectionChange();
   };
 
@@ -161,7 +163,7 @@ export default class Selection {
    */
   moveCursorLineStart = () => {
     this.selectionActive = false;
-    this.cursorCol = this.savedCursorCol = 0;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = 0;
     this.notifySelectionChange();
   };
 
@@ -170,7 +172,9 @@ export default class Selection {
    */
   moveCursorLineEnd = () => {
     this.selectionActive = false;
-    this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine);
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = this.document.getLineLength(
+      this.cursorLine
+    );
     this.notifySelectionChange();
   };
 
@@ -179,8 +183,8 @@ export default class Selection {
    */
   moveCursorDocumentStart = () => {
     this.selectionActive = false;
-    this.cursorLine = 0;
-    this.cursorCol = this.savedCursorCol = 0;
+    this.cursorLine = this.selectionEndLine = 0;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = 0;
     this.notifySelectionChange();
   };
 
@@ -189,8 +193,10 @@ export default class Selection {
    */
   moveCursorDocumentEnd = () => {
     this.selectionActive = false;
-    this.cursorLine = this.document.getLineCount() - 1;
-    this.cursorCol = this.savedCursorCol = this.document.getLineLength(this.cursorLine);
+    this.cursorLine = this.selectionEndLine = this.document.getLineCount() - 1;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = this.document.getLineLength(
+      this.cursorLine
+    );
     this.notifySelectionChange();
   };
 
@@ -213,8 +219,8 @@ export default class Selection {
     );
 
     this.selectionActive = false;
-    this.cursorLine = newCursorLine;
-    this.cursorCol = this.savedCursorCol = newCursorCol;
+    this.cursorLine = this.selectionEndLine = newCursorLine;
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = newCursorCol;
     this.notifySelectionChange();
   };
 
@@ -247,6 +253,51 @@ export default class Selection {
       this.selectionEndLine--;
     }
 
+    this.notifySelectionChange();
+  };
+
+  /**
+   * Moves selection one word forward.
+   */
+  selectWordForward = () => {
+    const lineText = this.document.getLine(this.cursorLine);
+    const length = lineText.length;
+    if (this.selectionEndCol === length) return this.selectColForward();
+
+    let i = this.selectionEndCol;
+    while (i < length && whitespaceRe.test(lineText[i])) i++;
+    if (i < length) {
+      if (wordSepRe.test(lineText[i])) {
+        while (i < length && wordSepRe.test(lineText[i])) i++;
+      } else {
+        while (i < length && !wordSepOrWhitespaceRe.test(lineText[i])) i++;
+      }
+    }
+
+    this.selectionActive = true;
+    this.selectionEndCol = i;
+    this.notifySelectionChange();
+  };
+
+  /**
+   * Moves selection one word backward.
+   */
+  selectWordBackward = () => {
+    if (this.selectionEndCol === 0) return this.selectColBackward();
+    const lineText = this.document.getLine(this.cursorLine);
+
+    let i = this.selectionEndCol;
+    while (i > 0 && whitespaceRe.test(lineText[i - 1])) i--;
+    if (i > 0) {
+      if (wordSepRe.test(lineText[i - 1])) {
+        while (i > 0 && wordSepRe.test(lineText[i - 1])) i--;
+      } else {
+        while (i > 0 && !wordSepOrWhitespaceRe.test(lineText[i - 1])) i--;
+      }
+    }
+
+    this.selectionActive = true;
+    this.selectionEndCol = i;
     this.notifySelectionChange();
   };
 
