@@ -26,6 +26,10 @@ const defaultOptions = {
   lineSeparator: '\n'
 };
 
-export default function mergeWithDefaultOptions(givenOptions) {
+/**
+ * Merges any given options with the default options, giving preference
+ * to given options when provided.
+ */
+export default function mergeWithDefaultOptions(givenOptions = {}) {
   return { ...defaultOptions, ...givenOptions };
 }

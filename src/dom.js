@@ -1,7 +1,7 @@
 export const el = (selector, props = {}, ...children) => {
-  const [type, ...classNames] = selector.split('.');
-  const elt = document.createElement(type);
-  classNames.forEach(cn => elt.classList.add(cn));
+  const parts = selector.split('.');
+  const elt = document.createElement(parts[0]);
+  parts[1].forEach(cn => elt.classList.add(cn));
 
   let ref;
   Object.keys(props).forEach(key => {

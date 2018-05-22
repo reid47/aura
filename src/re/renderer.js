@@ -112,7 +112,7 @@ export default class Renderer {
         lineCount,
         Math.ceil(clientHeight / lineHeight) + lineOverscan
       );
-      return [firstVisibleLine, lastVisibleLine];
+      return { firstVisibleLine, lastVisibleLine };
     }
 
     const firstVisibleLine = Math.max(0, Math.floor(scrollTop / lineHeight) - lineOverscan);
@@ -121,7 +121,7 @@ export default class Renderer {
       Math.ceil((scrollTop + clientHeight - lineHeight) / lineHeight) + lineOverscan
     );
 
-    return [firstVisibleLine, lastVisibleLine];
+    return { firstVisibleLine, lastVisibleLine };
   };
 
   drawVisibleLines = (firstVisibleLine, lastVisibleLine, scrollTop) => {
@@ -212,7 +212,7 @@ export default class Renderer {
     const { scrollTop } = this.scrollContainerNode;
 
     this.calculateTextDimensions();
-    const [firstVisibleLine, lastVisibleLine] = this.calculateVisibleLines();
+    const { firstVisibleLine, lastVisibleLine } = this.calculateVisibleLines();
     this.drawVisibleLines(firstVisibleLine, lastVisibleLine, scrollTop);
     this.drawSelection(firstVisibleLine, lastVisibleLine);
 
