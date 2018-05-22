@@ -64,6 +64,9 @@ export default class Renderer {
     this.render();
   };
 
+  /**
+   * Scrolls a given `Selection` into view, if it isn't already in view.
+   */
   scrollIntoView = selection => {
     const { cursorLine } = selection;
     const { lineOverscan } = this.options;
@@ -78,6 +81,9 @@ export default class Renderer {
     }
   };
 
+  /**
+   * Calculates (or recalculates) the overall width and height of all lines of text.
+   */
   calculateTextDimensions = () => {
     const characterWidth = this.session.getCharacterWidth();
     const lineHeight = this.session.getSetting('lineHeight');
@@ -100,6 +106,10 @@ export default class Renderer {
     }
   };
 
+  /**
+   * Determines the first and last visible lines on the screen, based on the current
+   * scroll position, font size, client height, etc.
+   */
   calculateVisibleLines = () => {
     const { scrollTop, scrollHeight, clientHeight } = this.scrollContainerNode;
     const lineCount = this.document.getLineCount();
@@ -124,6 +134,9 @@ export default class Renderer {
     return { firstVisibleLine, lastVisibleLine };
   };
 
+  /**
+   * Draws visible lines of text to the screen.
+   */
   drawVisibleLines = (firstVisibleLine, lastVisibleLine, scrollTop) => {
     const lineHeight = this.session.getSetting('lineHeight');
     const lines = this.document.getLines();
@@ -190,6 +203,9 @@ export default class Renderer {
     this.textViewNode.innerHTML = visibleLineHtml.join('');
   };
 
+  /**
+   * Draws selection and cursor.
+   */
   drawSelection = (firstVisibleLine, lastVisibleLine) => {
     this.activeLineNode.hidden = true;
 
@@ -208,6 +224,9 @@ export default class Renderer {
     }
   };
 
+  /**
+   * Draws (or redraws) everything.
+   */
   render = () => {
     const { scrollTop } = this.scrollContainerNode;
 
