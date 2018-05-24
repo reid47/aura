@@ -1,8 +1,8 @@
-import Selection from './selection';
-import Input from './input';
-import { keyCodes } from '../keys';
 import { on } from '../dom';
 import { measureCharacterWidth } from '../helpers/font-helper';
+import { keyCodes } from '../keys';
+import Input from './input';
+import Selection from './selection';
 
 export default class Session {
   constructor(root, document, options) {

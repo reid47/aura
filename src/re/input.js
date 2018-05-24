@@ -1,11 +1,11 @@
-import { keyCode, keyCodes, ctrl, shift } from '../keys';
-import { on } from '../dom';
 import {
   dispatchCursorMove,
-  dispatchLineBreakInsert,
   dispatchLineBreakDelete,
+  dispatchLineBreakInsert,
   dispatchLineTextChange
 } from '../custom-events';
+import { on } from '../dom';
+import { ctrl, keyCode, keyCodes, shift } from '../keys';
 
 /**
  * Wraps the inner `textarea` element that receives the input and

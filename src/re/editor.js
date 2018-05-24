@@ -1,8 +1,8 @@
-import Document from './document';
-import Session from './session';
-import Renderer from './renderer';
-import mergeWithDefaultOptions from './options';
 import { on } from '../dom';
+import Document from './document';
+import mergeWithDefaultOptions from './options';
+import Renderer from './renderer';
+import Session from './session';
 
 /**
  * Represents a single Aura instance.
