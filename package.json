@@ -10,7 +10,9 @@
     "lint": "eslint src --fix",
     "build": "rollup -c --environment NODE_ENV:production",
     "dev": "rollup -c -w",
-    "test": "jest"
+    "test": "jest",
+    "format": "prettier --list-different {src,test}/**/*.js",
+    "push": "npm run format && npm run lint && git push"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -24,6 +26,7 @@
     "eslint": "^4.19.1",
     "eslint-plugin-jest": "^21.15.1",
     "jest": "^22.4.4",
+    "prettier": "^1.12.1",
     "rollup": "^0.59.2",
     "rollup-plugin-babel": "^3.0.4",
     "rollup-plugin-commonjs": "^9.1.3",

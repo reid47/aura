@@ -1,13 +1,13 @@
-import { measureCharacterWidth } from './helpers/font-helper';
-import TextArea from './components/textarea';
 import Gutter from './components/gutter';
 import ScrollContainer from './components/scroll-container';
+import SelectionOverlay from './components/selection-overlay';
 import TextContainer from './components/text-container';
 import TextOverlay from './components/text-overlay';
+import TextArea from './components/textarea';
 import Wrapper from './components/wrapper';
-import SelectionOverlay from './components/selection-overlay';
-import Document from './document';
 import { initCustomEvents } from './custom-events';
+import Document from './document';
+import { measureCharacterWidth } from './helpers/font-helper';
 
 export default class Editor {
   constructor(root, options = {}) {
@@ -54,10 +54,7 @@ export default class Editor {
         this.textArea.init(),
         this.scrollContainer.init([
           this.gutter.init(),
-          this.textContainer.init([
-            this.selectionOverlay.init(),
-            this.textOverlay.init()
-          ])
+          this.textContainer.init([this.selectionOverlay.init(), this.textOverlay.init()])
         ])
       ])
     );
@@ -66,9 +63,7 @@ export default class Editor {
     this.setLineHeight(options.lineHeight || this.fontSize * 1.5);
     this.setIndentSize(options.indentSize || 2);
     this.setTabInsertsIndent(options.tabInsertsIndent || true);
-    this.setDisableSyntaxHighlighting(
-      options.disableSyntaxHighlighting || false
-    );
+    this.setDisableSyntaxHighlighting(options.disableSyntaxHighlighting || false);
 
     this.scrollContainer.calculateVisibleLines(this.state);
     this.drawTextOverlay();
@@ -77,8 +72,7 @@ export default class Editor {
   drawTextOverlay = () => {
     const lineCount = this.document.getLineCount();
     const contentHeight = lineCount * this.state.lineHeight;
-    const contentWidth =
-      this.document.getLongestLineLength() * this.state.characterWidth;
+    const contentWidth = this.document.getLongestLineLength() * this.state.characterWidth;
     const gutterWidth = `${lineCount}`.length * this.state.characterWidth;
 
     this.gutter.setSize(gutterWidth, contentHeight);
@@ -109,10 +103,7 @@ export default class Editor {
     if (this.fontSize === newFontSize) return;
     this.fontSize = newFontSize;
     this.wrapper.setFontSize(newFontSize);
-    this.state.characterWidth = measureCharacterWidth(
-      'monospace',
-      this.fontSize
-    );
+    this.state.characterWidth = measureCharacterWidth('monospace', this.fontSize);
   };
 
   setLineHeight = newLineHeight => {
@@ -149,9 +140,6 @@ export default class Editor {
   };
 
   drawSelectionOverlay = () => {
-    this.selectionOverlay.draw(
-      this.state,
-      this.scrollContainer.getScrollInfo()
-    );
+    this.selectionOverlay.draw(this.state, this.scrollContainer.getScrollInfo());
   };
 }
