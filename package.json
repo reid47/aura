@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint src --fix",
     "build": "rollup -c --environment NODE_ENV:production",
-    "dev": "rollup -c -w",
+    "start": "rollup -c -w",
     "test": "jest",
     "format": "prettier --list-different {src,test}/**/*.js",
     "push": "npm run format && npm run lint && git push"

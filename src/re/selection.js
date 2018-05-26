@@ -201,6 +201,32 @@ export default class Selection {
   };
 
   /**
+   * Moves cursor to the beginning of the selection.
+   */
+  moveCursorSelectionStart = () => {
+    this.selectionActive = false;
+    this.cursorLine = Math.min(this.cursorLine, this.selectionEndLine);
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = Math.min(
+      this.cursorCol,
+      this.selectionEndCol
+    );
+    this.notifySelectionChange();
+  };
+
+  /**
+   * Moves cursor to the end of the selection.
+   */
+  moveCursorSelectionEnd = () => {
+    this.selectionActive = false;
+    this.cursorLine = Math.max(this.cursorLine, this.selectionEndLine);
+    this.cursorCol = this.selectionEndCol = this.savedCursorCol = Math.max(
+      this.cursorCol,
+      this.selectionEndCol
+    );
+    this.notifySelectionChange();
+  };
+
+  /**
    * Handles mousedown events on the scroll container and updates the selection
    * accordingly.
    */
@@ -228,7 +254,7 @@ export default class Selection {
    * Moves selection one column forward.
    */
   selectColForward = () => {
-    if (this.selectionEndCol < this.document.getLineLength(this.cursorLine)) {
+    if (this.selectionEndCol < this.document.getLineLength(this.selectionEndLine)) {
       this.selectionActive = true;
       this.selectionEndCol++;
     } else if (this.selectionEndLine < this.document.getLineCount() - 1) {
@@ -260,7 +286,7 @@ export default class Selection {
    * Moves selection one word forward.
    */
   selectWordForward = () => {
-    const lineText = this.document.getLine(this.cursorLine);
+    const lineText = this.document.getLine(this.selectionEndLine);
     const length = lineText.length;
     if (this.selectionEndCol === length) return this.selectColForward();
 
@@ -284,7 +310,7 @@ export default class Selection {
    */
   selectWordBackward = () => {
     if (this.selectionEndCol === 0) return this.selectColBackward();
-    const lineText = this.document.getLine(this.cursorLine);
+    const lineText = this.document.getLine(this.selectionEndLine);
 
     let i = this.selectionEndCol;
     while (i > 0 && whitespaceRe.test(lineText[i - 1])) i--;

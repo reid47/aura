@@ -41,12 +41,9 @@ export default class Renderer {
             el(
               'div.Aura-selection-overlay',
               { ref: makeRef('selectionOverlayNode') },
-              el(
-                'div.Aura-active-line',
-                { ref: makeRef('activeLineNode') },
-                el('div.Aura-cursor', { ref: makeRef('cursorNode') })
-              ),
-              el('div.Aura-selection-layer', { ref: makeRef('selectionNode') })
+              el('div.Aura-active-line', { ref: makeRef('activeLineNode') }),
+              el('div.Aura-selection-layer', { ref: makeRef('selectionNode') }),
+              el('div.Aura-cursor', { ref: makeRef('cursorNode') })
             )
           ),
           el('div.Aura-text-view', { ref: makeRef('textViewNode') })
@@ -97,6 +94,7 @@ export default class Renderer {
       this.textViewNode.style.height = newTextHeight;
       this.overlaysNode.style.height = newTextHeight;
       this.selectionOverlayNode.style.height = newTextHeight;
+      this.cursorNode.style.height = px(lineHeight);
     }
 
     const newTextWidth = px(longestLineLength * characterWidth);
@@ -223,59 +221,68 @@ export default class Renderer {
     const characterWidth = this.session.getCharacterWidth();
 
     if (!selectionActive && cursorLine >= firstVisibleLine && cursorLine <= lastVisibleLine) {
-      const columnOffset = cursorCol * characterWidth;
+      const lineOffset = px(cursorLine * lineHeight);
+      const colOffset = px(cursorCol * characterWidth);
+      this.cursorNode.style.top = lineOffset;
+      this.cursorNode.style.transform = `translateX(${colOffset})`;
       this.activeLineNode.style.height = px(lineHeight);
-      this.activeLineNode.style.top = px(cursorLine * lineHeight);
-      this.cursorNode.style.transform = `translateX(${px(columnOffset)})`;
-      this.cursorNode.offsetHeight;
+      this.activeLineNode.style.top = lineOffset;
       this.activeLineNode.hidden = false;
-      return;
     }
 
-    if (selectionActive) {
-      const lines = this.document.getLines();
-      const realSelectionStartLine = Math.min(cursorLine, selectionEndLine);
-      const realSelectionEndLine = Math.max(cursorLine, selectionEndLine);
-      let selection = '';
+    if (!selectionActive) return;
 
-      for (let line = firstVisibleLine; line <= lastVisibleLine; line++) {
-        if (line < realSelectionStartLine || line > realSelectionEndLine) continue;
-        const isFirstLineWithSelection = line === realSelectionStartLine;
-        const isLastLineWithSelection = line === realSelectionEndLine;
-        const text = lines[line];
+    console.log({
+      cursorLine,
+      cursorCol,
+      selectionActive,
+      selectionEndLine,
+      selectionEndCol
+    });
 
-        if (isFirstLineWithSelection && isLastLineWithSelection) {
-          const selectionStartColumn = Math.min(cursorCol, selectionEndCol);
+    const lineOffset = px(selectionEndLine * lineHeight);
+    const colOffset = px(selectionEndCol * characterWidth);
+    this.cursorNode.style.top = lineOffset;
+    this.cursorNode.style.transform = `translateX(${colOffset})`;
 
-          const realSelectionEndCol = Math.max(cursorCol, selectionEndCol);
+    const realSelectionStartLine = Math.min(cursorLine, selectionEndLine);
+    const realSelectionEndLine = Math.max(cursorLine, selectionEndLine);
+    if (realSelectionStartLine > lastVisibleLine || realSelectionEndLine < firstVisibleLine) return;
 
-          const selectedPart = text.substring(selectionStartColumn, realSelectionEndCol);
+    const lines = this.document.getLines();
+    let selection = '';
 
-          selection += `<span class="Aura-selection" style="top: ${line *
-            lineHeight}px; left: ${selectionStartColumn *
-            characterWidth}px">${selectedPart}</span>`;
-        } else if (isFirstLineWithSelection) {
-          const selectionStartColumn = Math.min(cursorCol, selectionEndCol);
+    for (let line = firstVisibleLine; line <= lastVisibleLine; line++) {
+      if (line < realSelectionStartLine || line > realSelectionEndLine) continue;
 
-          const selectedPart = text.substring(selectionStartColumn);
+      const isFirstLineWithSelection = line === realSelectionStartLine;
+      const isLastLineWithSelection = line === realSelectionEndLine;
+      const text = lines[line];
+      const top = px(line * lineHeight);
 
-          selection += `<span class="Aura-selection" style="top: ${line *
-            lineHeight}px; left: ${selectionStartColumn * characterWidth}px">${selectedPart +
-            '&nbsp;'}</span>`;
-        } else if (isLastLineWithSelection) {
-          const realSelectionEndCol = Math.max(cursorCol, selectionEndCol);
-          const selectedPart = text.substring(0, realSelectionEndCol);
-          selection += `<span class="Aura-selection" style="top: ${line *
-            lineHeight}px">${selectedPart}</span>`;
-        } else {
-          selection += `<span class="Aura-selection" style="top: ${line * lineHeight}px">${text +
-            '&nbsp;'}</span>`;
-        }
+      if (isFirstLineWithSelection && isLastLineWithSelection) {
+        const realSelectionStartCol = Math.min(cursorCol, selectionEndCol);
+        const realSelectionEndCol = Math.max(cursorCol, selectionEndCol);
+        const selectedPart = text.substring(realSelectionStartCol, realSelectionEndCol);
+
+        selection += `<span class="Aura-selection" style="top: ${top}; left: ${realSelectionStartCol *
+          characterWidth}px">${selectedPart}</span>`;
+      } else if (isFirstLineWithSelection) {
+        const selectedPart = text.substring(cursorCol);
+
+        selection += `<span class="Aura-selection" style="top: ${top}; left: ${cursorCol *
+          characterWidth}px">${selectedPart + '&nbsp;'}</span>`;
+      } else if (isLastLineWithSelection) {
+        const selectedPart = text.substring(0, selectionEndCol);
+
+        selection += `<span class="Aura-selection" style="top: ${top}">${selectedPart}</span>`;
+      } else {
+        selection += `<span class="Aura-selection" style="top: ${top}">${text + '&nbsp;'}</span>`;
       }
-
-      this.selectionNode.innerHTML = selection;
-      this.selectionNode.hidden = false;
     }
+
+    this.selectionNode.innerHTML = selection;
+    this.selectionNode.hidden = false;
   };
 
   /**

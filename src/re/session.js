@@ -15,9 +15,9 @@ export default class Session {
     this.document.setValue(this.options.initialValue || '');
     this.input.setBuffer(this.document.getLine(this.selection.cursorLine));
 
-    on(this.root, 'lineTextChange', this.onLineTextChange);
     on(this.root, 'cursorMove', this.onCursorMove);
     on(this.root, 'selectionChange', this.onSelectionChange);
+    on(this.root, 'lineTextChange', this.onLineTextChange);
     on(this.root, 'lineBreakInsert', this.onLineBreakInsert);
     on(this.root, 'lineBreakDelete', this.onLineBreakDelete);
   }
@@ -52,6 +52,8 @@ export default class Session {
   };
 
   onCursorMove = ({ detail: { direction, shiftKey, ctrlKey } }) => {
+    const { selectionActive } = this.selection;
+
     if (shiftKey && ctrlKey) {
       switch (direction) {
         case keyCodes.LEFT:
@@ -80,6 +82,15 @@ export default class Session {
           return this.selection.moveCursorDocumentStart();
         case keyCodes.END:
           return this.selection.moveCursorDocumentEnd();
+      }
+    }
+
+    if (selectionActive) {
+      switch (direction) {
+        case keyCodes.LEFT:
+          return this.selection.moveCursorSelectionStart();
+        case keyCodes.RIGHT:
+          return this.selection.moveCursorSelectionEnd();
       }
     }
 
