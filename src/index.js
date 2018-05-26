@@ -1,4 +1,4 @@
-import Editor from './re/editor';
+import Editor from './editor';
 
 export default function(root, options = {}) {
   root = typeof root === 'string' ? document.querySelector(root) : root;

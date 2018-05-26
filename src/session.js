@@ -1,7 +1,7 @@
-import { on } from '../dom';
-import { measureCharacterWidth } from '../helpers/font-helper';
-import { keyCodes } from '../keys';
+import { on } from './dom';
+import { measureCharacterWidth } from './helpers/font-helper';
 import Input from './input';
+import { keyCodes } from './keys';
 import Selection from './selection';
 
 export default class Session {

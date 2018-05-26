@@ -1,242 +1,118 @@
-import { dispatchTextChange, dispatchCursorMove } from './custom-events';
+import { dispatchLineTextChange } from './custom-events';
 
 /**
- * A model representing the contents of an editor at a point in time.
- * Text is stored by line. This class also keeps track of the current
- * position of the cursor within the document.
+ * Represents the text content of an `Editor`.
+ *
+ * Text is stored as an array of strings, one for each line.
  */
 export default class Document {
-  constructor(options = {}) {
-    this.lines = [];
-    this.lineStartIndexes = [];
-    this.cursorLine = 0;
-    this.cursorColumn = 0;
-    this.lastSavedCursorColumn = 0;
-    this.longestLineLength = 0;
-    this.selectionActive = false;
-    this.selectionEndLine = 0;
-    this.selectionEndColumn = 0;
+  constructor(root, options) {
+    this.root = root;
+    this.options = options;
 
-    this.setText(options.initialValue || '');
+    this.lines = [];
+    this.longestLineLength = 0;
   }
 
-  getLine = index => this.lines[index];
-
+  /**
+   * Gets all lines in document.
+   */
   getLines = () => this.lines;
 
-  getLineCount = () => this.lines.length;
+  /**
+   * Gets the string value of the line at `lineIndex`.
+   */
+  getLine = lineIndex => this.lines[lineIndex];
 
-  getText = () => this.lines.join('\n');
+  /**
+   * Gets the length of the line at `lineIndex`.
+   */
+  getLineLength = lineIndex => this.lines[lineIndex].length;
 
-  getCursorPosition = () => ({
-    cursorLine: this.cursorLine,
-    cursorColumn: this.cursorColumn
-  });
-
-  getState = () => ({
-    cursorLine: this.cursorLine,
-    cursorColumn: this.cursorColumn,
-    selectionActive: this.selectionActive,
-    selectionEndLine: this.selectionEndLine,
-    selectionEndColumn: this.selectionEndColumn
-  });
-
+  /**
+   * Gets the length of the longest line in the document.
+   */
   getLongestLineLength = () => this.longestLineLength;
 
-  setText = newText => {
-    this.lines = newText.split('\n');
-    this.calculateLineStartIndexes();
-  };
+  /**
+   * Gets the total number of lines in the document.
+   */
+  getLineCount = () => this.lines.length;
 
-  setLine = (index, newLineText) => {
-    this.lines[index] = newLineText;
-    this.calculateLineStartIndexes();
-  };
+  /**
+   * Gets the current value of the document as a single string, with lines
+   * joined by `options.lineSeparator`
+   */
+  getValue = () => this.lines.join(this.options.lineSeparator);
 
-  updateLineAtCursor = (newLineText, newCursorColumn) => {
-    this.setLine(this.cursorLine, newLineText);
-    this.cursorColumn = newCursorColumn;
-    this.lastSavedCursorColumn = this.cursorColumn;
-    dispatchTextChange();
-  };
-
-  setCursorPosition = (newCursorLine, newCursorColumn) => {
-    this.cursorLine = newCursorLine;
-    this.cursorColumn = newCursorColumn;
-    this.lastSavedCursorColumn = newCursorColumn;
-    const text = this.lines[this.cursorLine];
-    dispatchCursorMove();
-    return { text, cursorColumn: this.cursorColumn };
-  };
-
-  calculateLineStartIndexes = () => {
-    let startIndex = 0;
-    let longest = 0;
-    // TODO: can probably start at lineIndex here
-    this.lineStartIndexes = this.lines.map(line => {
-      const oldStartIndex = startIndex;
-      const lineLength = line.length;
-      longest = Math.max(longest, lineLength);
-      startIndex = lineLength + startIndex + 1;
-      return oldStartIndex;
+  /**
+   * Given a string, sets value of full document to that string,
+   * replacing any existing lines.
+   */
+  setValue = newValue => {
+    this.lines = newValue.split(/\r\n|\r|\n/);
+    this.longestLineLength = 0;
+    this.lines.forEach(line => {
+      if (line.length > this.longestLineLength) this.longestLineLength = line.length;
     });
-
-    this.longestLineLength = Math.max(this.longestLineLength, longest);
   };
 
-  insertLineBreakAtCursor = () => {
-    const currentLine = this.lines[this.cursorLine];
-    let text;
+  /**
+   * Updates the line at given `lineIndex` to be `newValue`.
+   */
+  updateLine = (lineIndex, newValue) => {
+    this.lines[lineIndex] = newValue;
+    if (newValue.length > this.longestLineLength) this.longestLineLength = 0;
+  };
 
-    if (this.cursorColumn === 0) {
-      // we're at the beginning of a line
-      this.lines.splice(this.cursorLine, 0, '');
-      text = currentLine;
-    } else if (this.cursorColumn === currentLine.length) {
-      // we're at the end of a line
-      this.lines.splice(this.cursorLine + 1, 0, '');
-      text = '';
-    } else {
-      const firstPart = currentLine.substring(0, this.cursorColumn);
-      const secondPart = currentLine.substring(this.cursorColumn);
-      this.lines[this.cursorLine] = firstPart;
-      this.lines.splice(this.cursorLine + 1, 0, secondPart);
-      text = secondPart;
+  /**
+   * Inserts a line break at the given line and column.
+   */
+  insertLineBreak = (lineIndex, colIndex) => {
+    const currentLine = this.lines[lineIndex];
+
+    // If at the very beginning of a line:
+    if (colIndex === 0) {
+      // insert a new blank line at this index
+      this.lines.splice(lineIndex, 0, '');
+      // and set the new line at cursor to be either the next line or a blank line
+      this.notifyLineTextChange(this.lines[lineIndex + 1] || '', lineIndex + 1, 0);
+      return;
     }
 
-    this.cursorLine += 1;
-    this.cursorColumn = 0;
-    this.lastSavedCursorColumn = this.cursorColumn;
-    dispatchTextChange();
-    dispatchCursorMove(this.getCursorPosition());
-    return { text, cursorColumn: this.cursorColumn };
-  };
-
-  removeLineBreakAtCursor = () => {
-    const currentLine = this.lines[this.cursorLine];
-    const prevLine = this.lines[this.cursorLine - 1] || '';
-    const text = prevLine + currentLine;
-    this.lines.splice(this.cursorLine - 1, 2, text);
-
-    this.cursorColumn = prevLine.length;
-    this.lastSavedCursorColumn = this.cursorColumn;
-    this.cursorLine -= 1;
-    dispatchTextChange();
-    dispatchCursorMove(this.getCursorPosition());
-    return { text, cursorColumn: this.cursorColumn };
-  };
-
-  moveCursorLineUp = () => {
-    if (this.cursorLine === 0) {
-      this.cursorColumn = 0;
-      return { cursorColumn: this.cursorColumn };
+    // If at the very end of a line:
+    if (colIndex === currentLine.length) {
+      // insert a new blank line at the next index
+      this.lines.splice(lineIndex + 1, 0, '');
+      // and set the new line at cursor to be that blank next line
+      this.notifyLineTextChange('', lineIndex + 1, 0);
+      return;
     }
 
-    const prevLine = this.lines[this.cursorLine - 1];
-    this.cursorLine -= 1;
-    this.cursorColumn = Math.min(this.lastSavedCursorColumn, prevLine.length);
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { text: prevLine, cursorColumn: this.cursorColumn };
+    // Otherwise, we're somewhere in the middle of a line, so we split it up
+    const firstPart = currentLine.substring(0, colIndex);
+    const secondPart = currentLine.substring(colIndex);
+    // the current line now contains just the first part
+    this.lines[lineIndex] = firstPart;
+    // and the new next line contains the second part
+    this.lines.splice(lineIndex + 1, 0, secondPart);
+    this.notifyLineTextChange(secondPart, lineIndex + 1, 0);
   };
 
-  moveCursorLineDown = () => {
-    if (this.cursorLine === this.lines.length - 1) {
-      this.cursorColumn = this.lines[this.cursorLine].length;
-      return { cursorColumn: this.cursorColumn };
-    }
-
-    const nextLine = this.lines[this.cursorLine + 1];
-    this.cursorLine += 1;
-    this.cursorColumn = Math.min(this.lastSavedCursorColumn, nextLine.length);
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { text: nextLine, cursorColumn: this.cursorColumn };
+  /**
+   * Deletes a given line from the document.
+   */
+  deleteLineBreak = lineIndex => {
+    const currentLine = this.lines[lineIndex];
+    const prevLine = this.lines[lineIndex - 1] || '';
+    this.lines.splice(lineIndex, 1);
+    this.notifyLineTextChange(prevLine + currentLine, Math.max(0, lineIndex - 1), prevLine.length);
   };
 
-  moveCursorLineStart = () => {
-    this.cursorColumn = 0;
-    this.lastSavedCursorColumn = this.cursorColumn;
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { cursorColumn: this.cursorColumn };
-  };
-
-  moveCursorLineEnd = () => {
-    this.cursorColumn = this.lines[this.cursorLine].length;
-    this.lastSavedCursorColumn = this.cursorColumn;
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { cursorColumn: this.cursorColumn };
-  };
-
-  moveCursorColumnUp = () => {
-    if (this.cursorColumn === this.lines[this.cursorLine].length) {
-      this.cursorColumn = 0;
-      this.lastSavedCursorColumn = this.cursorColumn;
-      const ret = this.moveCursorLineDown();
-      this.lastSavedCursorColumn = this.cursorColumn;
-
-      dispatchCursorMove(this.getCursorPosition());
-      return ret;
-    }
-
-    this.cursorColumn += 1;
-    this.lastSavedCursorColumn = this.cursorColumn;
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { cursorColumn: this.cursorColumn };
-  };
-
-  moveCursorColumnDown = () => {
-    if (this.cursorColumn === 0) {
-      this.cursorColumn = +Infinity;
-      this.lastSavedCursorColumn = this.cursorColumn;
-      const ret = this.moveCursorLineUp();
-      this.lastSavedCursorColumn = this.cursorColumn;
-
-      dispatchCursorMove(this.getCursorPosition());
-      return ret;
-    }
-
-    this.cursorColumn -= 1;
-    this.lastSavedCursorColumn = this.cursorColumn;
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { cursorColumn: this.cursorColumn };
-  };
-
-  moveCursorDocumentStart = () => {
-    this.cursorLine = 0;
-    this.cursorColumn = 0;
-    this.lastSavedCursorColumn = this.cursorColumn;
-    const text = this.lines[this.cursorLine];
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { cursorColumn: this.cursorColumn, text };
-  };
-
-  moveCursorDocumentEnd = () => {
-    this.cursorLine = this.lines.length - 1;
-    const text = this.lines[this.cursorLine];
-    this.cursorColumn = text.length;
-    this.lastSavedCursorColumn = this.cursorColumn;
-
-    dispatchCursorMove(this.getCursorPosition());
-    return { cursorColumn: this.cursorColumn, text };
-  };
-
-  getSelection = () => {
-    if (this.selectionEndLine === this.cursorLine) {
-      const startColumn = Math.min(this.selectionEndColumn, this.cursorColumn);
-      const endColumn = Math.max(this.selectionEndColumn, this.cursorColumn);
-      return this.lines[this.cursorLine].substring(startColumn, endColumn);
-    }
-  };
-
-  setSelectionEnd = (endLine, endColumn) => {
-    this.selectionEndLine = endLine;
-    this.selectionEndColumn = endColumn;
-    this.selectionActive = true;
+  /**
+   * Raises a `lineTextChange` event on the DOM node.
+   */
+  notifyLineTextChange = (text, cursorLine, cursorCol) => {
+    dispatchLineTextChange(this.root, { text, cursorLine, cursorCol });
   };
 }

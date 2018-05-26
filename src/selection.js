@@ -1,4 +1,4 @@
-import { dispatchSelectionChange } from '../custom-events';
+import { dispatchSelectionChange } from './custom-events';
 
 const whitespaceRe = /^\s/;
 const wordSepRe = /^[.,!?$/_\\\-=+*'";:()[\]{}|`~<>@#%^&]/;

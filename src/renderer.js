@@ -1,5 +1,5 @@
-import { el, on } from '../dom';
-import { escape, px } from '../util';
+import { el, on } from './dom';
+import { escape, px } from './util';
 
 /**
  * Responsible for drawing all of the visible portions of the editor in the DOM.
@@ -231,14 +231,6 @@ export default class Renderer {
     }
 
     if (!selectionActive) return;
-
-    console.log({
-      cursorLine,
-      cursorCol,
-      selectionActive,
-      selectionEndLine,
-      selectionEndCol
-    });
 
     const lineOffset = px(selectionEndLine * lineHeight);
     const colOffset = px(selectionEndCol * characterWidth);
